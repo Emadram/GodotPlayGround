@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://dartfnjq7qegj"]
+
+[ext_resource type="ArrayMesh" uid="uid://ceqk61hvq60cj" path="res://14004_Moon_Building_Barracks_v2_L1.obj" id="1_f3sb7"]
+[ext_resource type="Script" uid="uid://lesm4hjx8lx7" path="res://RTSCamera.gd" id="2_fj7yv"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f3sb7"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_fj7yv"]
+sky_material = SubResource("ProceduralSkyMaterial_f3sb7")
+
+[sub_resource type="Environment" id="Environment_tlwt5"]
+background_mode = 2
+sky = SubResource("Sky_fj7yv")
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fj7yv"]
+albedo_color = Color(0.1728327, 0.17283267, 0.17283267, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_tlwt5"]
+size = Vector2(20, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tlwt5"]
+albedo_color = Color(0.00035817287, 0, 0.01885929, 1)
+
+[node name="World" type="Node3D" unique_id=99413466]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=196586012]
+environment = SubResource("Environment_tlwt5")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1024950896]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 5, -7)
+shadow_enabled = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=713043748]
+material_override = SubResource("StandardMaterial3D_fj7yv")
+mesh = SubResource("PlaneMesh_tlwt5")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=463206345]
+transform = Transform3D(0.009999721, -1.4394748e-05, -7.3229705e-05, 7.3259595e-05, 2.0808357e-05, 0.009999709, -1.4241873e-05, -0.009999967, 2.0913285e-05, 0, 0.0007159114, -8)
+mesh = ExtResource("1_f3sb7")
+surface_material_override/0 = SubResource("StandardMaterial3D_tlwt5")
+
+[node name="CameraBase" type="Node3D" parent="." unique_id=254987575]
+transform = Transform3D(1, 0, 0, 0, 0.9578125, 0.28739396, 0, -0.28739396, 0.9578125, 2.469, 0, 0)
+script = ExtResource("2_fj7yv")
+
+[node name="CameraSocket" type="Node3D" parent="CameraBase" unique_id=990821949]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 3, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraBase/CameraSocket" unique_id=376815693]
