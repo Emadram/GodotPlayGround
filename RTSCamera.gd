@@ -2,15 +2,20 @@ extends Node3D
 # CameraMove
 @export_range(0,100,1) var camera_move_speed:float = 20.0
 
+# CameraRotate
+var camera_rotation_direction:int = 0
+@export_range(0,10,0.1) var camera_rotation_speed:float = 0.20
+@export_range(0,20,1) var camera_base_rotation_speed:float = 20
+
 # CameraPan
 @export_range(0,32,4) var camera_automatic_pan_margin:int = 16
-@export_range(0,20,0.5) var camera_automatic_pan_speed:float = 12.0
+@export_range(0,20,0.5) var camera_automatic_pan_speed:float = 16.5
 
 
 # CameraZoom
 var camera_zoom_direction:float = 0
 @export_range(0,100,1) var camera_zoom_speed = 40.0
-@export_range(0,100,1) var camera_zoom_min = 10.0
+@export_range(0,100,1) var camera_zoom_min = 4.0
 @export_range(0,100,1) var camera_zoom_max = 25.0
 @export_range(0,2,0.1) var camera_zoom_speed_damp:float = 0.92
 
@@ -19,6 +24,11 @@ var camera_can_process:bool = true
 var camera_can_move_base:bool = true
 var camera_can_zoom:bool = true
 var camera_can_automatic_pan:bool = true
+var camera_can_rotate_base:bool = true
+
+
+# Internal Flag
+var camera_is_rotating_base:bool = true
 
 # Nodes
 @onready var camera_socket:Node3D = $CameraSocket
@@ -28,12 +38,14 @@ var camera_can_automatic_pan:bool = true
 func _ready() -> void:
 	pass
 
+#Camera function calls go here 
 func _process(delta: float) -> void:
 	if !camera_can_process:return
+	
 	camera_base_move(delta)
 	camera_zoom_update(delta)
 	camera_automatic_pan(delta)
-	
+	camera_base_rotate(delta)
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Camera Zoom
@@ -41,6 +53,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_zoom_direction = -1
 	elif event.is_action("camera_zoom_out"):
 		camera_zoom_direction = 1
+		
+	if event.is_action_pressed("camera_rotate_right"):
+		camera_rotation_direction = 1
+		camera_is_rotating_base = true
+	elif event.is_action_pressed("camera_rotate_left"):
+		camera_rotation_direction = -1
+		camera_is_rotating_base = true
+	elif event.is_action_released("camera_rotate_left") or event.is_action_released("camera_rotate_right"):
+		camera_is_rotating_base = false
 
 # Moves the base of the camera with WASD
 func camera_base_move(delta:float) -> void:
@@ -54,14 +75,29 @@ func camera_base_move(delta:float) -> void:
 	
 	position += velocity_direction.normalized() * camera_move_speed * delta
 
-# Controls te zoom of te camera
+# Controls the zoom of the camera
 func camera_zoom_update(delta:float) -> void:
 	if !camera_can_zoom:return
 	
 	var new_zoom:float = clamp(camera.position.z + camera_zoom_speed * camera_zoom_direction * delta, camera_zoom_min, camera_zoom_max)
 	camera.position.z = new_zoom
 	camera_zoom_direction *= camera_zoom_speed_damp
+
+
+# Rotates the camera base
+func camera_base_rotate(delta:float) -> void:
+	if !camera_can_rotate_base or !camera_is_rotating_base:return
 	
+	#TO ROTATE
+	camera_base_rotate_left_right(delta,camera_rotation_direction * camera_rotation_speed)
+
+# Rotate the camera base left to right
+func camera_base_rotate_left_right(delta:float, dir:float) -> void:
+	rotation.y += dir * camera_rotation_speed * delta
+	
+	
+	
+# Pans the camera automatically based on the screen margin
 func camera_automatic_pan(delta:float) -> void:
 	if !camera_can_automatic_pan:return
 	
