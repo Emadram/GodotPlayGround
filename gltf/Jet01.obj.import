@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ccmnmu5l5tvt5"
+path="res://.godot/imported/Jet01.obj-c18d4e9b51a39a90d70dc62ebdba2831.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Jet01.obj-c18d4e9b51a39a90d70dc62ebdba2831.mesh"]
+
+source_file="res://gltf/Jet01.obj"
+dest_files=["res://.godot/imported/Jet01.obj-c18d4e9b51a39a90d70dc62ebdba2831.mesh", "res://.godot/imported/Jet01.obj-c18d4e9b51a39a90d70dc62ebdba2831.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
