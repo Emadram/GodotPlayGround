@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://eucv482w0ayh"]
+
+[ext_resource type="PackedScene" uid="uid://c3uhn16dljc8y" path="res://gltf/Test_Unit_01.fbx" id="1_fs084"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fs084"]
+size = Vector3(1.805603, 1.8320313, 1)
+
+[node name="Testunit" type="Node3D" unique_id=921050875]
+
+[node name="unit_graphics" parent="." unique_id=659728360 instance=ExtResource("1_fs084")]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="unit_graphics" unique_id=612530188]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="unit_graphics/CharacterBody3D" unique_id=879359861]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0074157715, 0.92425466, 0)
+shape = SubResource("BoxShape3D_fs084")

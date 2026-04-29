@@ -4,10 +4,14 @@
 [ext_resource type="ArrayMesh" uid="uid://ceqk61hvq60cj" path="res://gltf/Building_01.obj" id="1_m5mgf"]
 [ext_resource type="ArrayMesh" uid="uid://ccmnmu5l5tvt5" path="res://gltf/Jet01.obj" id="2_emkrx"]
 [ext_resource type="ArrayMesh" uid="uid://ccvtlh02cqr02" path="res://gltf/Jet02.obj" id="3_0tg4p"]
+[ext_resource type="PackedScene" uid="uid://eucv482w0ayh" path="res://scene/testunit.tscn" id="3_hcb8y"]
 [ext_resource type="Script" uid="uid://lesm4hjx8lx7" path="res://script/RTSCamera.gd" id="4_hcb8y"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_emkrx"]
 load_path = "res://.godot/imported/abc.png-8d3790d355419ba991badf18548d488a.ctex"
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_emkrx"]
+size = Vector3(50, 1, 35)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f3sb7"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -22,6 +26,7 @@ sky = SubResource("Sky_fj7yv")
 tonemap_mode = 2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fj7yv"]
+transparency = 1
 albedo_color = Color(0.047902763, 0.06456029, 0.11433149, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_tlwt5"]
@@ -41,14 +46,29 @@ metallic = 1.0
 metallic_texture = SubResource("AnimatedTexture_pkg7o")
 metallic_texture_channel = 4
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_emkrx"]
-size = Vector3(50, 1, 35)
-
 [node name="World" type="Node3D" unique_id=99413466]
 
 [node name="Player_Interface" type="Node2D" parent="." unique_id=1031169347]
 script = ExtResource("1_emkrx")
 metadata/_edit_lock_ = true
+
+[node name="ui_dragbox" type="NinePatchRect" parent="Player_Interface" unique_id=167261133]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 216.0
+offset_top = 152.0
+offset_right = 256.0
+offset_bottom = 192.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CompressedTexture2D_emkrx")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
 
 [node name="Button" type="Button" parent="Player_Interface" unique_id=384336685]
 offset_left = 24.0
@@ -57,15 +77,23 @@ offset_right = 191.0
 offset_bottom = 55.0
 text = "Player Test Interface"
 
-[node name="NinePatchRect" type="NinePatchRect" parent="Player_Interface" unique_id=167261133]
-offset_right = 40.0
-offset_bottom = 40.0
-scale = Vector2(9.967631, 5.83011)
-texture = SubResource("CompressedTexture2D_emkrx")
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
+[node name="CameraBase" type="Node3D" parent="Player_Interface" unique_id=254987575]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.047333956, 0.64338374, 0)
+script = ExtResource("4_hcb8y")
+
+[node name="CameraSocket" type="Node3D" parent="Player_Interface/CameraBase" unique_id=990821949]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 3, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Player_Interface/CameraBase/CameraSocket" unique_id=376815693]
+
+[node name="visibleunits_area3D" type="Area3D" parent="Player_Interface/CameraBase" unique_id=1387968268]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player_Interface/CameraBase/visibleunits_area3D" unique_id=1133104859]
+shape = SubResource("BoxShape3D_emkrx")
+
+[node name="Testunit" parent="Player_Interface" unique_id=921050875 instance=ExtResource("3_hcb8y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7406027, 0, -3.0079565)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=196586012]
 environment = SubResource("Environment_tlwt5")
@@ -93,18 +121,3 @@ mesh = ExtResource("2_emkrx")
 transform = Transform3D(-9.616505e-10, -0.022, -9.616505e-10, 0, -9.616505e-10, 0.022, -0.022, 9.616505e-10, 4.203508e-17, 4.931299, 0.011036903, -8.159343)
 material_override = SubResource("StandardMaterial3D_gbfbk")
 mesh = ExtResource("3_0tg4p")
-
-[node name="CameraBase" type="Node3D" parent="." unique_id=254987575]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.047333956, 0.64338374, 0)
-script = ExtResource("4_hcb8y")
-
-[node name="CameraSocket" type="Node3D" parent="CameraBase" unique_id=990821949]
-transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 3, 0)
-
-[node name="Camera3D" type="Camera3D" parent="CameraBase/CameraSocket" unique_id=376815693]
-
-[node name="visibleunits_area3D" type="Area3D" parent="." unique_id=1387968268]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="visibleunits_area3D" unique_id=1133104859]
-shape = SubResource("BoxShape3D_emkrx")
