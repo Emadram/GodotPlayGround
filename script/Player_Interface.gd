@@ -3,7 +3,7 @@ extends Node2D
 # NODES
 @onready var player_camera:Node3D = $CameraBase
 @onready var player_camera_visibleunits_Area3D:Area3D = $CameraBase/visibleunits_area3D
-@onready var ui_dragbox:NinePatchRect = $ui_dragbox
+@onready var ui_dragbox:NinePatchRect = $UI/ui_dragbox
 
 
 
