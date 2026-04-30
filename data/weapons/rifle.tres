@@ -11,3 +11,4 @@ cooldown = 0.6
 range = 12.0
 projectile_speed = 40.0
 splash_radius = 0.0
+accuracy = 0.85

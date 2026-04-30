@@ -8,3 +8,4 @@ class_name WeaponData
 @export var range: float = 10.0
 @export var projectile_speed: float = 30.0
 @export var splash_radius: float = 0.0
+@export var accuracy: float = 0.9

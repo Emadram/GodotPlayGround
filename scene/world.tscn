@@ -141,12 +141,16 @@ mesh = ExtResource("3_0tg4p")
 
 [node name="testunit" parent="." unique_id=921050875 instance=ExtResource("3_hcb8y")]
 transform = Transform3D(0.85690653, 0, 0.5154719, 0, 1, 0, -0.5154719, 0, 0.85690653, 0, 0, 0)
+team_id = 1
 
 [node name="testunit2" parent="." unique_id=645509437 instance=ExtResource("3_hcb8y")]
 transform = Transform3D(0.8539506, 0, -0.52035403, 0, 1, 0, 0.52035403, 0, 0.8539506, 2.0882673, 0, 1.1463847)
+team_id = 2
 
 [node name="testunit3" parent="." unique_id=114444420 instance=ExtResource("3_hcb8y")]
 transform = Transform3D(0.5387267, 0, -0.8424806, 0, 1, 0, 0.8424806, 0, 0.5387267, 1.7535291, 0, 0)
+team_id = 2
 
 [node name="testunit4" parent="." unique_id=917773657 instance=ExtResource("3_hcb8y")]
 transform = Transform3D(0.8790086, 0, 0.47680596, 0, 1, 0, -0.47680596, 0, 0.8790086, 0, 0, 2.0663877)
+team_id = 1
