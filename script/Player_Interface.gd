@@ -6,6 +6,8 @@ extends Node2D
 @onready var camera_3d:Camera3D = $CameraBase/CameraSocket/Camera3D
 @onready var ui_dragbox:NinePatchRect = $UI/ui_dragbox
 
+@export var airstrike_marker_scene: PackedScene
+
 
 
 # Variables
@@ -18,6 +20,7 @@ var selection_groups: Dictionary = {}
 # CONSTANTS
 const min_drag_squared:int = 128
 const formation_spacing:float = 1.6
+const player_team_id:int = 1
 
 # Internal Variables
 var mouse_left_click:bool = false
@@ -35,6 +38,8 @@ func find_selectable_root(node: Node) -> Node3D:
 
 func _ready() -> void:
 	initialize_interface()
+	if airstrike_marker_scene == null:
+		airstrike_marker_scene = load("res://scene/airstrike_marker.tscn") as PackedScene
 	
 
 func unit_entered(unit:Node3D) -> void:
@@ -68,6 +73,8 @@ func initialize_interface() -> void:
 func _input(event:InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		issue_move_command(event.shift_pressed)
+	if Input.is_action_just_pressed("airstrike"):
+		request_airstrike_at_cursor()
 	if Input.is_action_just_pressed("mouse_leftclick"): # Runs once
 		drag_rectangle_area.position = get_global_mouse_position()
 		mouse_left_click = true
@@ -139,7 +146,7 @@ func build_formation_positions(center: Vector3, count: int, spacing: float) -> A
 	var start_z := -((rows - 1) * spacing) * 0.5
 	for i in range(count):
 		var col := i % columns
-		var row := i / columns
+		var row: int = int(i / float(columns))
 		var pos := center + Vector3(start_x + col * spacing, 0.0, start_z + row * spacing)
 		positions.append(pos)
 	return positions
@@ -150,8 +157,25 @@ func _filter_valid_units(units: Array) -> Array:
 		if is_instance_valid(unit):
 			filtered.append(unit)
 	return filtered
+
+func request_airstrike_at_cursor() -> void:
+	if GameManager == null:
+		return
+	if GameManager.promotion_level < 1:
+		return
+	var target := get_mouse_world_position()
+	spawn_airstrike_marker(target)
+	GameManager.request_airstrike(target, player_team_id)
+
+func spawn_airstrike_marker(target_position: Vector3) -> void:
+	if airstrike_marker_scene == null:
+		return
+	var root := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
+	var marker := airstrike_marker_scene.instantiate()
+	root.add_child(marker)
+	marker.global_position = Vector3(target_position.x, 0.05, target_position.z)
 	
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if mouse_left_click:
 		
 		drag_rectangle_area.size = get_global_mouse_position() - drag_rectangle_area.position

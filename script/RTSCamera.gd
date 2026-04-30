@@ -19,6 +19,7 @@ var camera_zoom_direction:float = 0
 @export_range(0,100,1) var camera_zoom_min = 4.0
 @export_range(0,100,1) var camera_zoom_max = 25.0
 @export_range(0,2,0.1) var camera_zoom_speed_damp:float = 0.92
+@export_range(0,100,0.1) var camera_zoom_start:float = 12.0
 
 # Flags
 var camera_can_process:bool = true
@@ -40,7 +41,8 @@ var mouse_last_postion:Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
-	pass
+	camera.position.z = clamp(camera_zoom_start, camera_zoom_min, camera_zoom_max)
+	camera.make_current()
 
 #Camera function calls go here 
 func _process(delta: float) -> void:

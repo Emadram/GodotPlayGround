@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://supplydock1"]
+
+[ext_resource type="Script" path="res://script/SupplyDock.gd" id="1_dock"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_dock"]
+size = Vector3(2, 0.4, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dock"]
+albedo_color = Color(0.2, 0.6, 0.2, 1)
+
+[node name="SupplyDock" type="Node3D"]
+script = ExtResource("1_dock")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_dock")
+material_override = SubResource("StandardMaterial3D_dock")

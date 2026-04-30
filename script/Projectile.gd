@@ -7,15 +7,17 @@ var accuracy: float = 1.0
 var target_position: Vector3 = Vector3.ZERO
 var target_unit: Node3D
 var source_team: int = 0
+var source_unit: Node3D
 var direction: Vector3 = Vector3.FORWARD
 var lifetime: float = 0.0
 var max_lifetime: float = 5.0
 
-func setup(weapon: WeaponData, origin: Vector3, target: Vector3, target_node: Node3D, team_id: int) -> void:
+func setup(weapon: WeaponData, origin: Vector3, target: Vector3, target_node: Node3D, team_id: int, source: Node3D) -> void:
 	global_position = origin
 	target_position = target
 	target_unit = target_node
 	source_team = team_id
+	source_unit = source
 	if weapon != null:
 		speed = weapon.projectile_speed
 		damage = weapon.damage
@@ -50,7 +52,7 @@ func _apply_damage(unit: Node3D, amount: int) -> void:
 	if unit == null:
 		return
 	if unit.has_method("apply_damage"):
-		unit.apply_damage(amount, self)
+		unit.apply_damage(amount, source_unit)
 
 func _apply_splash_damage() -> void:
 	var units := get_tree().get_nodes_in_group("units")

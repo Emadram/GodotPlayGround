@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dropoff1"]
+
+[ext_resource type="Script" path="res://script/DropoffPoint.gd" id="1_dropoff"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dropoff"]
+height = 0.6
+radius = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dropoff"]
+albedo_color = Color(0.2, 0.4, 0.9, 1)
+
+[node name="DropoffPoint" type="Node3D"]
+script = ExtResource("1_dropoff")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_dropoff")
+material_override = SubResource("StandardMaterial3D_dropoff")

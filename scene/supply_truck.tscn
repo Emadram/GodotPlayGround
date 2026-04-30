@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://supplytruck1"]
+
+[ext_resource type="PackedScene" path="res://gltf/Test_Unit_01.fbx" id="1_mesh"]
+[ext_resource type="Texture2D" path="res://images/ui_select_dragbox01.png" id="2_select"]
+[ext_resource type="Script" path="res://script/SupplyTruck.gd" id="3_truck"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_truck"]
+size = Vector3(1.8, 1.8, 1)
+
+[node name="SupplyTruck" type="Node3D"]
+script = ExtResource("3_truck")
+
+[node name="NavAgent" type="NavigationAgent3D" parent="."]
+
+[node name="selected" type="Sprite3D" parent="."]
+modulate = Color(0, 0.7, 0.7, 0.4)
+pixel_size = 0.1
+axis = 1
+texture = ExtResource("2_select")
+
+[node name="unit_graphics" parent="." instance=ExtResource("1_mesh")]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="unit_graphics"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="unit_graphics/CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0074157715, 0.92425466, 0)
+shape = SubResource("BoxShape3D_truck")

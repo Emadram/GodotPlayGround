@@ -3,6 +3,7 @@ extends Node
 signal game_state_changed(new_state: int)
 signal resources_changed(current: int)
 signal power_changed(available: int, used: int)
+signal promotions_changed(points: int, level: int)
 
 enum GameState {
 	BOOT,
@@ -17,6 +18,9 @@ var current_faction_id: String = "usa"
 var resources: int = 0
 var power_available: int = 0
 var power_used: int = 0
+var promotion_points: int = 0
+var promotion_level: int = 0
+var promotion_thresholds: PackedInt32Array = PackedInt32Array([0, 3, 7, 12])
 
 func _ready() -> void:
 	if DataRegistry:
@@ -33,9 +37,12 @@ func start_match(faction_id: String) -> void:
 		resources = 10000
 		power_available = 0
 	power_used = 0
+	promotion_points = 0
+	promotion_level = 0
 	_set_state(GameState.RUNNING)
 	resources_changed.emit(resources)
 	power_changed.emit(power_available, power_used)
+	promotions_changed.emit(promotion_points, promotion_level)
 
 func spend_resources(amount: int) -> bool:
 	if amount <= 0:
@@ -59,6 +66,35 @@ func set_power_used(value: int) -> void:
 func set_power_available(value: int) -> void:
 	power_available = max(value, 0)
 	power_changed.emit(power_available, power_used)
+
+func add_promotion_points(points: int) -> void:
+	if points <= 0:
+		return
+	promotion_points += points
+	var new_level := promotion_level
+	while new_level + 1 < promotion_thresholds.size() and promotion_points >= promotion_thresholds[new_level + 1]:
+		new_level += 1
+	if new_level != promotion_level:
+		promotion_level = new_level
+		promotions_changed.emit(promotion_points, promotion_level)
+	else:
+		promotions_changed.emit(promotion_points, promotion_level)
+
+func request_airstrike(position: Vector3, team_id: int = 1, radius: float = 2.5, damage: int = 80) -> void:
+	if promotion_level < 1:
+		return
+	var units := get_tree().get_nodes_in_group("units")
+	for unit in units:
+		if not is_instance_valid(unit):
+			continue
+		if not unit is Node3D:
+			continue
+		var other_team = unit.get("team_id")
+		if typeof(other_team) == TYPE_INT and other_team == team_id:
+			continue
+		if position.distance_to(unit.global_position) <= radius:
+			if unit.has_method("apply_damage"):
+				unit.apply_damage(damage, null)
 
 func end_match(victory: bool) -> void:
 	_set_state(GameState.VICTORY if victory else GameState.DEFEAT)

@@ -2,6 +2,7 @@ extends Node3D
 
 @export var unit_data: UnitData
 @export var team_id: int = 1
+@export var xp_value: int = 10
 @export var projectile_scene: PackedScene = preload("res://scene/projectile.tscn")
 
 @onready var nav_agent: NavigationAgent3D = $NavAgent
@@ -19,6 +20,11 @@ enum UnitState {
 	GARRISON
 }
 
+var xp_thresholds: PackedInt32Array = PackedInt32Array([0, 50, 150, 300])
+var fire_rate_mult: PackedFloat32Array = PackedFloat32Array([1.0, 1.15, 1.3, 1.5])
+var damage_mult: PackedFloat32Array = PackedFloat32Array([1.0, 1.1, 1.2, 1.35])
+var self_heal: PackedFloat32Array = PackedFloat32Array([0.0, 0.0, 0.5, 1.0])
+
 var max_health: int = 100
 var current_health: int = 100
 var move_speed: float = 5.0
@@ -27,6 +33,11 @@ var attack_range: float = 0.0
 var attack_cooldown: float = 1.0
 var attack_timer: float = 0.0
 var attack_target: Node3D
+var xp: int = 0
+var rank: int = 0
+var fire_rate_multiplier: float = 1.0
+var damage_multiplier: float = 1.0
+var self_heal_rate: float = 0.0
 var state: UnitState = UnitState.IDLE
 var command_queue: Array = []
 var current_target: Vector3 = Vector3.ZERO
@@ -46,6 +57,7 @@ func _ready() -> void:
 	setup_navigation()
 	setup_hit_audio()
 	update_health_bar()
+	_update_rank()
 	_start_next_command()
 
 
@@ -100,6 +112,9 @@ func clear_commands() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_timer = max(attack_timer - delta, 0.0)
+	if self_heal_rate > 0.0 and current_health < max_health:
+		current_health = min(current_health + self_heal_rate * delta, max_health)
+		update_health_bar()
 	if state == UnitState.MOVE and has_target:
 		_process_move(delta)
 	else:
@@ -150,7 +165,7 @@ func _process_attack(_delta: float) -> void:
 	state = UnitState.ATTACK
 	if attack_timer <= 0.0:
 		_fire_weapon(attack_target)
-		attack_timer = attack_cooldown
+		attack_timer = attack_cooldown / fire_rate_multiplier
 
 
 func _start_next_command() -> void:
@@ -202,16 +217,49 @@ func _fire_weapon(target_unit: Node3D) -> void:
 	root.add_child(projectile)
 	var origin := global_position + Vector3(0, 0.8, 0)
 	var target_pos := target_unit.global_position + Vector3(0, 0.8, 0)
-	projectile.setup(weapon_data, origin, target_pos, target_unit, team_id)
+	projectile.setup(weapon_data, origin, target_pos, target_unit, team_id, self)
+	projectile.damage = int(round(float(projectile.damage) * damage_multiplier))
+
 
 
 func apply_damage(amount: int, _source: Node) -> void:
+	var was_alive := current_health > 0
 	current_health = max(current_health - amount, 0)
 	update_health_bar()
 	flash_hit()
 	play_hit_sound()
 	if current_health <= 0:
+		if was_alive:
+			_award_kill_xp(_source)
 		die()
+
+
+func gain_xp(amount: int) -> void:
+	if amount <= 0:
+		return
+	xp += amount
+	_update_rank()
+
+
+func _update_rank() -> void:
+	var new_rank := rank
+	for i in range(xp_thresholds.size()):
+		if xp >= xp_thresholds[i]:
+			new_rank = i
+	if new_rank != rank:
+		rank = new_rank
+		fire_rate_multiplier = fire_rate_mult[rank]
+		damage_multiplier = damage_mult[rank]
+		self_heal_rate = self_heal[rank]
+
+
+func _award_kill_xp(source: Node) -> void:
+	if source == null:
+		return
+	if source.has_method("gain_xp"):
+		source.gain_xp(xp_value)
+	if GameManager and typeof(source.get("team_id")) == TYPE_INT and source.get("team_id") == 1:
+		GameManager.add_promotion_points(1)
 
 
 func die() -> void:
