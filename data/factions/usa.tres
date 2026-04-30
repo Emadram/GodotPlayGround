@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/data/FactionData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "usa"
+display_name = "USA"
+color = Color(0.2, 0.4, 0.8, 1)
+starting_cash = 10000
+starting_power = 10
+economy_id = "usa_economy"
+starting_units = ["usa_ranger"]
+starting_buildings = ["usa_command_center"]

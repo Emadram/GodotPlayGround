@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/data/BuildingData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_command_center"
+display_name = "Command Center"
+description = "Primary USA HQ."
+cost = 2000
+build_time = 20.0
+max_health = 3000
+power_provided = 10
+power_consumed = 0
+footprint = Vector2(4, 4)
+faction_id = "usa"
+produces_units = ["usa_ranger"]

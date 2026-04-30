@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EconomyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/data/EconomyData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_economy"
+display_name = "USA Economy"
+supply_gather_rate = 10.0
+drop_off_time = 1.5
+supply_dock_amount = 20000

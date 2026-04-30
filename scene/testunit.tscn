@@ -3,12 +3,14 @@
 [ext_resource type="PackedScene" uid="uid://c3uhn16dljc8y" path="res://gltf/Test_Unit_01.fbx" id="1_fs084"]
 [ext_resource type="Texture2D" uid="uid://bu5hp0flcxxgh" path="res://images/ui_select_dragbox01.png" id="2_7tvtk"]
 [ext_resource type="Script" uid="uid://wdk737hodapr" path="res://script/testunit.gd" id="3_testunit"]
+[ext_resource type="Resource" path="res://data/units/usa_ranger.tres" id="4_unit_data"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fs084"]
 size = Vector3(1.805603, 1.8320313, 1)
 
 [node name="testunit" type="Node3D" unique_id=921050875]
 script = ExtResource("3_testunit")
+unit_data = ExtResource("4_unit_data")
 
 [node name="unit_graphics" parent="." unique_id=659728360 instance=ExtResource("1_fs084")]
 

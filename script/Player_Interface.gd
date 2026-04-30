@@ -3,6 +3,7 @@ extends Node2D
 # NODES
 @onready var player_camera:Node3D = $CameraBase
 @onready var player_camera_visibleunits_Area3D:Area3D = $CameraBase/visibleunits_area3D
+@onready var camera_3d:Camera3D = $CameraBase/CameraSocket/Camera3D
 @onready var ui_dragbox:NinePatchRect = $UI/ui_dragbox
 
 
@@ -10,10 +11,13 @@ extends Node2D
 # Variables
 @onready var BoxSelectionUnits_Visible:Dictionary = {}
 # {unit_id : unit_node}
+var selected_units: Array = []
+var selection_groups: Dictionary = {}
 
 
 # CONSTANTS
 const min_drag_squared:int = 128
+const formation_spacing:float = 1.6
 
 # Internal Variables
 var mouse_left_click:bool = false
@@ -62,6 +66,8 @@ func initialize_interface() -> void:
 	player_camera_visibleunits_Area3D.body_exited.connect(unit_exited)
 	
 func _input(event:InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		issue_move_command(event.shift_pressed)
 	if Input.is_action_just_pressed("mouse_leftclick"): # Runs once
 		drag_rectangle_area.position = get_global_mouse_position()
 		mouse_left_click = true
@@ -69,14 +75,81 @@ func _input(event:InputEvent) -> void:
 		mouse_left_click = false
 		ui_dragbox.visible = false
 		cast_selection()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode >= KEY_1 and event.keycode <= KEY_9:
+			var group_index: int = event.keycode - KEY_1 + 1
+			if event.ctrl_pressed:
+				selection_groups[group_index] = _filter_valid_units(selected_units)
+			elif selection_groups.has(group_index):
+				select_units(selection_groups[group_index])
 		
 # Unit selector
 func cast_selection() -> void:
+	var new_selection: Array = []
 	for unit in BoxSelectionUnits_Visible.values():
 		if drag_rectangle_area.abs().has_point( player_camera.get_Vector2_from_Vector3(unit.transform.origin)):
-			unit.selected()
-		else:
+			new_selection.append(unit)
+	select_units(new_selection)
+
+func select_units(units: Array) -> void:
+	for unit in selected_units:
+		if is_instance_valid(unit):
 			unit.deselect()
+	selected_units.clear()
+	for unit in units:
+		if is_instance_valid(unit):
+			unit.selected()
+			selected_units.append(unit)
+
+func issue_move_command(queued: bool) -> void:
+	selected_units = _filter_valid_units(selected_units)
+	if selected_units.is_empty():
+		return
+	var target := get_mouse_world_position()
+	var positions := build_formation_positions(target, selected_units.size(), formation_spacing)
+	for i in range(selected_units.size()):
+		var unit = selected_units[i]
+		if not is_instance_valid(unit):
+			continue
+		if unit.has_method("issue_move"):
+			var unit_target: Vector3 = positions[i]
+			unit_target.y = unit.global_position.y
+			unit.issue_move(unit_target, queued)
+
+func get_mouse_world_position() -> Vector3:
+	if camera_3d == null:
+		return Vector3.ZERO
+	var mouse_pos := get_viewport().get_mouse_position()
+	var origin := camera_3d.project_ray_origin(mouse_pos)
+	var direction := camera_3d.project_ray_normal(mouse_pos)
+	if abs(direction.y) < 0.001:
+		return origin
+	var t := (0.0 - origin.y) / direction.y
+	return origin + direction * t
+
+func build_formation_positions(center: Vector3, count: int, spacing: float) -> Array:
+	var positions: Array = []
+	if count <= 0:
+		return positions
+	var columns := int(ceil(sqrt(float(count))))
+	var rows := int(ceil(float(count) / float(columns)))
+	var start_x := -((columns - 1) * spacing) * 0.5
+	var start_z := -((rows - 1) * spacing) * 0.5
+	for i in range(count):
+		var col := i % columns
+		var row := i / columns
+		var pos := center + Vector3(start_x + col * spacing, 0.0, start_z + row * spacing)
+		positions.append(pos)
+	return positions
+
+func _filter_valid_units(units: Array) -> Array:
+	var filtered: Array = []
+	for unit in units:
+		if is_instance_valid(unit):
+			filtered.append(unit)
+	return filtered
 	
 func _process(delta: float) -> void:
 	if mouse_left_click:

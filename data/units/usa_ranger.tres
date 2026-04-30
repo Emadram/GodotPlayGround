@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/data/UnitData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_ranger"
+display_name = "Ranger"
+description = "Basic USA infantry."
+cost = 200
+build_time = 5.0
+max_health = 120
+move_speed = 5.5
+armor_id = "infantry"
+weapon_id = "rifle"
+sight_range = 18.0
+power_use = 0
+faction_id = "usa"

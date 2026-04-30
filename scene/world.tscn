@@ -6,6 +6,7 @@
 [ext_resource type="ArrayMesh" uid="uid://ccvtlh02cqr02" path="res://gltf/Jet02.obj" id="3_0tg4p"]
 [ext_resource type="PackedScene" uid="uid://eucv482w0ayh" path="res://scene/testunit.tscn" id="3_hcb8y"]
 [ext_resource type="Script" uid="uid://lesm4hjx8lx7" path="res://script/RTSCamera.gd" id="4_hcb8y"]
+[ext_resource type="Script" uid="uid://bdl73aux1yvdu" path="res://script/DebugHUD.gd" id="5_debug"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_emkrx"]
 load_path = "res://.godot/imported/abc.png-8d3790d355419ba991badf18548d488a.ctex"
@@ -94,6 +95,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player_Interface/CameraBase/visibleunits_area3D" unique_id=1133104859]
 shape = SubResource("BoxShape3D_emkrx")
+
+[node name="DebugHUD" type="CanvasLayer" parent="." unique_id=194477383]
+layer = 20
+script = ExtResource("5_debug")
+
+[node name="Label" type="Label" parent="DebugHUD" unique_id=1997978019]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 260.0
+offset_bottom = 120.0
+text = "HUD"
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=196586012]
 environment = SubResource("Environment_tlwt5")
