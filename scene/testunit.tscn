@@ -12,6 +12,8 @@ size = Vector3(1.805603, 1.8320313, 1)
 script = ExtResource("3_testunit")
 unit_data = ExtResource("4_unit_data")
 
+[node name="NavAgent" type="NavigationAgent3D" parent="."]
+
 [node name="unit_graphics" parent="." unique_id=659728360 instance=ExtResource("1_fs084")]
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="unit_graphics" unique_id=612530188]

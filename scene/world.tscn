@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://lesm4hjx8lx7" path="res://script/RTSCamera.gd" id="4_hcb8y"]
 [ext_resource type="Script" uid="uid://bdl73aux1yvdu" path="res://script/DebugHUD.gd" id="5_debug"]
 
+[sub_resource type="NavigationMesh" id="NavigationMesh_nav"]
+
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_emkrx"]
 load_path = "res://.godot/imported/abc.png-8d3790d355419ba991badf18548d488a.ctex"
 
@@ -48,6 +50,9 @@ metallic_texture = SubResource("AnimatedTexture_pkg7o")
 metallic_texture_channel = 4
 
 [node name="World" type="Node3D" unique_id=99413466]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1054965141]
+navigation_mesh = SubResource("NavigationMesh_nav")
 
 [node name="Player_Interface" type="Node2D" parent="." unique_id=1031169347]
 script = ExtResource("1_emkrx")
@@ -115,7 +120,7 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 shadow_enabled = true
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=713043748]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01896143, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00013227761, 0.01739955, -2.9994154)
 material_override = SubResource("StandardMaterial3D_fj7yv")
 mesh = SubResource("PlaneMesh_tlwt5")
 
