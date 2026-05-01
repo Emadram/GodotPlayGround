@@ -2,6 +2,7 @@ extends Node3D
 
 var speed: float = 30.0
 var damage: int = 5
+var damage_type: String = "small_arms"
 var splash_radius: float = 0.0
 var accuracy: float = 1.0
 var target_position: Vector3 = Vector3.ZERO
@@ -21,6 +22,7 @@ func setup(weapon: WeaponData, origin: Vector3, target: Vector3, target_node: No
 	if weapon != null:
 		speed = weapon.projectile_speed
 		damage = weapon.damage
+		damage_type = weapon.damage_type
 		splash_radius = weapon.splash_radius
 		accuracy = weapon.accuracy
 	direction = (target_position - origin)
@@ -52,7 +54,7 @@ func _apply_damage(unit: Node3D, amount: int) -> void:
 	if unit == null:
 		return
 	if unit.has_method("apply_damage"):
-		unit.apply_damage(amount, source_unit)
+		unit.apply_damage(amount, source_unit, damage_type)
 
 func _apply_splash_damage() -> void:
 	var units := get_tree().get_nodes_in_group("units")

@@ -3,6 +3,7 @@ class_name WeaponData
 
 @export var id: String = ""
 @export var display_name: String = ""
+@export var damage_type: String = "small_arms"
 @export var damage: int = 5
 @export var cooldown: float = 1.0
 @export var range: float = 10.0
