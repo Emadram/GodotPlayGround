@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BuildingData" format=3 uid="uid://b4r1jvcp3c468"]
+
+[ext_resource type="Script" uid="uid://ohv2e58pplql" path="res://script/data/BuildingData.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c57o4uenyb7bp" path="res://gltf/MilitaryTent.fbx" id="1_n5i8j"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_barracks"
+display_name = "Barracks"
+description = "Trains infantry."
+building_scene = ExtResource("1_n5i8j")
+cost = 1000
+build_time = 10.0
+max_health = 1600
+power_consumed = 2
+footprint = Vector2(3, 3)
+faction_id = "usa"
+produces_units = Array[String](["usa_ranger", "usa_rocket_soldier"])

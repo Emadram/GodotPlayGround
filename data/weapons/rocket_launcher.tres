@@ -4,12 +4,12 @@
 
 [resource]
 script = ExtResource("1")
-id = "rifle"
-display_name = "Assault Rifle"
-damage_type = "small_arms"
-damage = 8
-cooldown = 0.6
-range = 12.0
-projectile_speed = 40.0
-splash_radius = 0.0
-accuracy = 0.85
+id = "rocket_launcher"
+display_name = "Rocket Launcher"
+damage_type = "explosive"
+damage = 35
+cooldown = 1.8
+range = 14.0
+projectile_speed = 25.0
+splash_radius = 1.5
+accuracy = 0.75

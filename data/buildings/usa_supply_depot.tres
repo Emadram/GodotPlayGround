@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/data/BuildingData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_supply_depot"
+display_name = "Supply Depot"
+description = "Small economy support structure."
+cost = 600
+build_time = 7.0
+max_health = 1000
+power_provided = 0
+power_consumed = 1
+footprint = Vector2(2, 2)
+faction_id = "usa"
+produces_units = []

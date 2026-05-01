@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1")
-id = "infantry"
-display_name = "Infantry"
+id = "light_vehicle"
+display_name = "Light Vehicle"
 damage_modifiers = {
-"small_arms": 1.0,
-"explosive": 1.25,
-"cannon": 1.15
+"small_arms": 0.45,
+"explosive": 1.0,
+"cannon": 1.25
 }

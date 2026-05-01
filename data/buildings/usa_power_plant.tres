@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BuildingData" format=3 uid="uid://c76yrwc3v6sx1"]
+
+[ext_resource type="Script" uid="uid://ohv2e58pplql" path="res://script/data/BuildingData.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://2qrjgg8wrjyy" path="res://gltf/large_electric-generator.fbx" id="1_nsr8s"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_power_plant"
+display_name = "Power Plant"
+description = "Provides base power for buildings."
+building_scene = ExtResource("1_nsr8s")
+cost = 800
+build_time = 8.0
+max_health = 1200
+power_provided = 20
+footprint = Vector2(3, 3)
+faction_id = "usa"

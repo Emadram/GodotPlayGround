@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://script/data/UnitData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "usa_rocket_soldier"
+display_name = "Rocket Soldier"
+description = "Infantry with explosive anti-armor rockets."
+visual_tint = Color(0.45, 0.45, 0.45, 1)
+cost = 350
+build_time = 8.0
+max_health = 100
+move_speed = 4.8
+armor_id = "infantry"
+weapon_id = "rocket_launcher"
+sight_range = 18.0
+power_use = 0
+faction_id = "usa"

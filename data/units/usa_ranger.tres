@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="UnitData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://c86oebfef4f0d"]
 
-[ext_resource type="Script" path="res://script/data/UnitData.gd" id="1"]
+[ext_resource type="Script" uid="uid://jtof4mm7rfej" path="res://script/data/UnitData.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
@@ -14,5 +14,4 @@ move_speed = 5.5
 armor_id = "infantry"
 weapon_id = "rifle"
 sight_range = 18.0
-power_use = 0
 faction_id = "usa"
