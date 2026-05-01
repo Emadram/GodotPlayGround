@@ -1,60 +1,72 @@
 [gd_scene format=3 uid="uid://eucv482w0ayh"]
 
-[ext_resource type="PackedScene" uid="uid://c3uhn16dljc8y" path="res://gltf/Test_Unit_01.fbx" id="1_fs084"]
+[ext_resource type="PackedScene" uid="uid://dv2nq8eyekjt4" path="res://gltf/Soldier_02.glb" id="1_fs084"]
 [ext_resource type="Texture2D" uid="uid://bu5hp0flcxxgh" path="res://images/ui_select_dragbox01.png" id="2_7tvtk"]
 [ext_resource type="Script" uid="uid://wdk737hodapr" path="res://script/testunit.gd" id="3_testunit"]
-[ext_resource type="Resource" path="res://data/units/usa_ranger.tres" id="4_unit_data"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_fs084"]
-size = Vector3(1.805603, 1.8320313, 1)
-
-[sub_resource type="QuadMesh" id="QuadMesh_bar_back"]
-size = Vector2(0.9, 0.1)
+[ext_resource type="Resource" uid="uid://c86oebfef4f0d" path="res://data/units/usa_ranger.tres" id="4_unit_data"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bar_back"]
 transparency = 1
-albedo_color = Color(0, 0, 0, 0.6)
+cull_mode = 2
+no_depth_test = true
+albedo_color = Color(0, 0, 0, 0.78)
+billboard_mode = 2
 
-[sub_resource type="QuadMesh" id="QuadMesh_bar_fill"]
-size = Vector2(0.8, 0.08)
+[sub_resource type="QuadMesh" id="QuadMesh_bar_back"]
+size = Vector2(1.1, 0.14)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bar_fill"]
 transparency = 1
-albedo_color = Color(0.2, 0.85, 0.2, 0.9)
+cull_mode = 2
+no_depth_test = true
+albedo_color = Color(0.35, 0.95, 0.4, 0.95)
+billboard_mode = 2
 
-[sub_resource type="QuadMesh" id="QuadMesh_hit_flash"]
-size = Vector2(0.5, 0.5)
+[sub_resource type="QuadMesh" id="QuadMesh_bar_fill"]
+size = Vector2(0.95, 0.11)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hit_flash"]
 transparency = 1
 albedo_color = Color(1, 0.2, 0.2, 0.6)
 
+[sub_resource type="QuadMesh" id="QuadMesh_hit_flash"]
+size = Vector2(0.5, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fs084"]
+size = Vector3(1.805603, 1.8320313, 1)
+
 [node name="testunit" type="Node3D" unique_id=921050875]
 script = ExtResource("3_testunit")
 unit_data = ExtResource("4_unit_data")
+health_bar_height = 2.0
+pistol_grip_target_length = 0.3
 
-[node name="NavAgent" type="NavigationAgent3D" parent="."]
+[node name="NavAgent" type="NavigationAgent3D" parent="." unique_id=1007367775]
 
-[node name="HealthBar" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+[node name="HealthBar" type="Node3D" parent="." unique_id=2046550678]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.08, 0)
 
-[node name="BarBack" type="MeshInstance3D" parent="HealthBar"]
-mesh = SubResource("QuadMesh_bar_back")
-material_override = SubResource("StandardMaterial3D_bar_back")
-
-[node name="BarFill" type="MeshInstance3D" parent="HealthBar"]
-mesh = SubResource("QuadMesh_bar_fill")
-material_override = SubResource("StandardMaterial3D_bar_fill")
-
-[node name="HitFlash" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-mesh = SubResource("QuadMesh_hit_flash")
-material_override = SubResource("StandardMaterial3D_hit_flash")
+[node name="BarBack" type="MeshInstance3D" parent="HealthBar" unique_id=2139747528]
+transform = Transform3D(0.9635212, 0, 0, 0, 0.8655113, 0, 0, 0, 0.09526259, -0.00071409345, 0, 0)
 visible = false
+material_override = SubResource("StandardMaterial3D_bar_back")
+mesh = SubResource("QuadMesh_bar_back")
 
-[node name="HitAudio" type="AudioStreamPlayer3D" parent="."]
+[node name="BarFill" type="MeshInstance3D" parent="HealthBar" unique_id=1813699138]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012399584, 0, 0)
+material_override = SubResource("StandardMaterial3D_bar_fill")
+mesh = SubResource("QuadMesh_bar_fill")
+
+[node name="HitFlash" type="MeshInstance3D" parent="." unique_id=324041548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+visible = false
+material_override = SubResource("StandardMaterial3D_hit_flash")
+mesh = SubResource("QuadMesh_hit_flash")
+
+[node name="HitAudio" type="AudioStreamPlayer3D" parent="." unique_id=988898622]
 
 [node name="unit_graphics" parent="." unique_id=659728360 instance=ExtResource("1_fs084")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="unit_graphics" unique_id=612530188]
 

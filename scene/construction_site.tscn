@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://script/ConstructionSite.gd" id="1_construction_site"]
+[ext_resource type="Texture2D" path="res://images/ui_select_dragbox01.png" id="2_select"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_site"]
+size = Vector3(1, 0.6, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_site"]
+transparency = 1
+albedo_color = Color(0.35, 0.55, 0.75, 0.85)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_site"]
+size = Vector3(1, 1, 1)
+
+[node name="ConstructionSite" type="Node3D"]
+script = ExtResource("1_construction_site")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+mesh = SubResource("BoxMesh_site")
+material_override = SubResource("StandardMaterial3D_site")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="OccupancyBody" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OccupancyBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_site")
+
+[node name="ClickArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ClickArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_site")
+
+[node name="CancelArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CancelArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+shape = SubResource("BoxShape3D_site")
+
+[node name="ProgressLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+modulate = Color(0, 0, 0, 1)
+text = "0%"
+font_size = 28
+outline_size = 10
+outline_modulate = Color(1, 1, 1, 0.95)
+billboard = 1
+no_depth_test = true
+
+[node name="CancelLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, 0)
+modulate = Color(1, 0.35, 0.28, 1)
+text = "X Cancel"
+font_size = 26
+outline_size = 10
+outline_modulate = Color(0, 0, 0, 0.92)
+billboard = 1
+no_depth_test = true
+
+[node name="selected" type="Sprite3D" parent="."]
+modulate = Color(0.1, 0.8, 1, 0.35)
+pixel_size = 0.18
+axis = 1
+texture = ExtResource("2_select")

@@ -4,20 +4,20 @@
 [ext_resource type="ArrayMesh" uid="uid://ceqk61hvq60cj" path="res://gltf/Building_01.obj" id="1_m5mgf"]
 [ext_resource type="ArrayMesh" uid="uid://ccmnmu5l5tvt5" path="res://gltf/Jet01.obj" id="2_emkrx"]
 [ext_resource type="ArrayMesh" uid="uid://ccvtlh02cqr02" path="res://gltf/Jet02.obj" id="3_0tg4p"]
-[ext_resource type="PackedScene" uid="uid://eucv482w0ayh" path="res://scene/testunit.tscn" id="3_hcb8y"]
 [ext_resource type="Script" uid="uid://lesm4hjx8lx7" path="res://script/RTSCamera.gd" id="4_hcb8y"]
 [ext_resource type="Script" uid="uid://bdl73aux1yvdu" path="res://script/DebugHUD.gd" id="5_debug"]
-[ext_resource type="PackedScene" path="res://scene/supply_dock.tscn" id="6_supply_dock"]
-[ext_resource type="PackedScene" path="res://scene/dropoff_point.tscn" id="7_dropoff"]
-[ext_resource type="PackedScene" path="res://scene/supply_truck.tscn" id="8_supply_truck"]
+[ext_resource type="Texture2D" uid="uid://bu5hp0flcxxgh" path="res://images/ui_select_dragbox01.png" id="5_na5tu"]
+[ext_resource type="PackedScene" uid="uid://supplydock1" path="res://scene/supply_dock.tscn" id="6_supply_dock"]
+[ext_resource type="PackedScene" uid="uid://dropoff1" path="res://scene/dropoff_point.tscn" id="7_dropoff"]
+[ext_resource type="PackedScene" uid="uid://supplytruck1" path="res://scene/supply_truck.tscn" id="8_supply_truck"]
+[ext_resource type="PackedScene" uid="uid://do0er1" path="res://scene/dozer.tscn" id="9_dozer"]
+[ext_resource type="PackedScene" uid="uid://eucv482w0ayh" path="res://scene/testunit.tscn" id="10_testunit"]
+[ext_resource type="Script" uid="uid://dbw7e30t0n1jh" path="res://script/FogOfWarOverlay.gd" id="11_fow"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_nav"]
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_emkrx"]
-load_path = "res://.godot/imported/abc.png-8d3790d355419ba991badf18548d488a.ctex"
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_emkrx"]
-size = Vector3(50, 1, 35)
+size = Vector3(100, 1, 80)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f3sb7"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -36,7 +36,10 @@ transparency = 1
 albedo_color = Color(0.047902763, 0.06456029, 0.11433149, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_tlwt5"]
-size = Vector2(20, 20)
+size = Vector2(60, 60)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_fow"]
+size = Vector2(60, 60)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tlwt5"]
 albedo_color = Color(0.93578017, 0.9573174, 0.99942666, 1)
@@ -68,6 +71,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
 supply_dock_path = NodePath("../SupplyDock")
 dropoff_path = NodePath("../DropoffPoint")
 
+[node name="Dozer" parent="." unique_id=2039731142 instance=ExtResource("9_dozer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+
+[node name="EnemyRanger" parent="." unique_id=1923778600 instance=ExtResource("10_testunit")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 18.825964, 0, 4)
+team_id = 2
+
 [node name="Player_Interface" type="Node2D" parent="." unique_id=1031169347]
 script = ExtResource("1_emkrx")
 metadata/_edit_lock_ = true
@@ -87,7 +97,7 @@ offset_right = 256.0
 offset_bottom = 192.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("CompressedTexture2D_emkrx")
+texture = ExtResource("5_na5tu")
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
@@ -99,6 +109,13 @@ offset_top = 24.0
 offset_right = 191.0
 offset_bottom = 55.0
 text = "Player Test Interface"
+
+[node name="attack_move_cursor" type="Label" parent="Player_Interface/UI" unique_id=1029198784]
+visible = false
+modulate = Color(1, 0.6, 0.2, 0.95)
+offset_right = 26.0
+offset_bottom = 22.0
+text = "A+"
 
 [node name="CameraBase" type="Node3D" parent="Player_Interface" unique_id=254987575]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.047333956, 0.64338374, 0)
@@ -122,9 +139,51 @@ script = ExtResource("5_debug")
 [node name="Label" type="Label" parent="DebugHUD" unique_id=1997978019]
 offset_left = 12.0
 offset_top = 12.0
-offset_right = 260.0
-offset_bottom = 120.0
+offset_right = 186.0
+offset_bottom = 67.0
 text = "HUD"
+
+[node name="CommandBar" type="HBoxContainer" parent="DebugHUD" unique_id=1016431135]
+offset_left = 12.0
+offset_top = 132.0
+offset_right = 260.0
+offset_bottom = 162.0
+
+[node name="StopButton" type="Button" parent="DebugHUD/CommandBar" unique_id=1972550863]
+layout_mode = 2
+text = "Stop"
+
+[node name="HoldButton" type="Button" parent="DebugHUD/CommandBar" unique_id=2028251114]
+layout_mode = 2
+text = "Hold"
+
+[node name="AttackMoveButton" type="Button" parent="DebugHUD/CommandBar" unique_id=523616120]
+layout_mode = 2
+text = "Attack Move"
+
+[node name="GuardButton" type="Button" parent="DebugHUD/CommandBar" unique_id=1214738504]
+layout_mode = 2
+text = "Guard"
+
+[node name="BuildButton" type="Button" parent="DebugHUD/CommandBar" unique_id=1626639015]
+layout_mode = 2
+text = "Build CC"
+
+[node name="BuildPowerButton" type="Button" parent="DebugHUD/CommandBar" unique_id=959148052]
+layout_mode = 2
+text = "Power"
+
+[node name="BuildBarracksButton" type="Button" parent="DebugHUD/CommandBar" unique_id=731992522]
+layout_mode = 2
+text = "Barracks"
+
+[node name="BuildSupplyButton" type="Button" parent="DebugHUD/CommandBar" unique_id=1188803637]
+layout_mode = 2
+text = "Supply"
+
+[node name="TrainButton" type="Button" parent="DebugHUD/CommandBar" unique_id=65752449]
+layout_mode = 2
+text = "Train"
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=196586012]
 environment = SubResource("Environment_tlwt5")
@@ -137,6 +196,11 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0030701607, -0.15455174, -3.0130148)
 material_override = SubResource("StandardMaterial3D_fj7yv")
 mesh = SubResource("PlaneMesh_tlwt5")
+
+[node name="FogOfWarOverlay" type="MeshInstance3D" parent="MeshInstance3D" unique_id=714043749]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+mesh = SubResource("PlaneMesh_fow")
+script = ExtResource("11_fow")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=463206345]
 transform = Transform3D(0.009999721, -1.4394748e-05, -7.3229705e-05, 7.3259595e-05, 2.0808357e-05, 0.009999709, -1.4241873e-05, -0.009999967, 2.0913285e-05, 0, 0.0007159114, -8)
@@ -155,23 +219,3 @@ transform = Transform3D(-9.616505e-10, -0.022, -9.616505e-10, 0, -9.616505e-10, 
 visible = false
 material_override = SubResource("StandardMaterial3D_gbfbk")
 mesh = ExtResource("3_0tg4p")
-
-[node name="testunit" parent="." unique_id=921050875 instance=ExtResource("3_hcb8y")]
-transform = Transform3D(0.85690653, 0, 0.5154719, 0, 1, 0, -0.5154719, 0, 0.85690653, 0, 0, 0)
-
-[node name="testunit" parent="testunit" unique_id=1076352050 instance=ExtResource("3_hcb8y")]
-transform = Transform3D(0.85690665, 0, 0.51547194, 0, 1, 0, -0.51547194, 0, 0.85690665, 3.3352983, 0, 2.0063477)
-
-[node name="testunit" parent="testunit/testunit" unique_id=882382799 instance=ExtResource("3_hcb8y")]
-transform = Transform3D(0.8569067, 0, 0.515472, 0, 1, 0, -0.515472, 0, 0.8569067, 1.1180844, 0, -2.1738274)
-
-[node name="testunit2" parent="." unique_id=645509437 instance=ExtResource("3_hcb8y")]
-transform = Transform3D(0.8539506, 0, -0.52035403, 0, 1, 0, 0.52035403, 0, 0.8539506, 2.0882673, 0, 1.1463847)
-team_id = 2
-
-[node name="testunit3" parent="." unique_id=114444420 instance=ExtResource("3_hcb8y")]
-transform = Transform3D(0.5387267, 0, -0.8424806, 0, 1, 0, 0.8424806, 0, 0.5387267, 1.7535291, 0, 0)
-team_id = 2
-
-[node name="testunit4" parent="." unique_id=917773657 instance=ExtResource("3_hcb8y")]
-transform = Transform3D(0.8790086, 0, 0.47680596, 0, 1, 0, -0.47680596, 0, 0.8790086, 0, 0, 2.0663877)
