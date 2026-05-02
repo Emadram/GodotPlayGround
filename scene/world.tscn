@@ -13,6 +13,10 @@
 [ext_resource type="PackedScene" uid="uid://do0er1" path="res://scene/dozer.tscn" id="9_dozer"]
 [ext_resource type="PackedScene" uid="uid://eucv482w0ayh" path="res://scene/testunit.tscn" id="10_testunit"]
 [ext_resource type="Script" uid="uid://dbw7e30t0n1jh" path="res://script/FogOfWarOverlay.gd" id="11_fow"]
+[ext_resource type="Script" uid="uid://i5hg24cagpy4" path="res://script/WorldNavigationRegion.gd" id="12_nav_region"]
+[ext_resource type="Script" uid="uid://bwxl5puyok46x" path="res://script/MinimapView.gd" id="13_minimap"]
+[ext_resource type="Script" path="res://script/MatchDirector.gd" id="14_match"]
+[ext_resource type="Script" path="res://script/EnemyBrain.gd" id="15_enemy_brain"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_nav"]
 
@@ -59,17 +63,19 @@ metallic_texture_channel = 4
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1054965141]
 navigation_mesh = SubResource("NavigationMesh_nav")
+script = ExtResource("12_nav_region")
 
 [node name="SupplyDock" parent="." unique_id=68777082 instance=ExtResource("6_supply_dock")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -2)
+transform = Transform3D(0.8025743, 0, 0, 0, 1, 0, 0, 0, 0.7589452, -10.182803, 0, -2)
 
 [node name="DropoffPoint" parent="." unique_id=1887057873 instance=ExtResource("7_dropoff")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.019788265, 0, -0.27095318)
 
 [node name="SupplyTruck" parent="." unique_id=557013667 instance=ExtResource("8_supply_truck")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.07354206, 2)
 supply_dock_path = NodePath("../SupplyDock")
 dropoff_path = NodePath("../DropoffPoint")
+capacity = 200
 
 [node name="Dozer" parent="." unique_id=2039731142 instance=ExtResource("9_dozer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
@@ -77,6 +83,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
 [node name="EnemyRanger" parent="." unique_id=1923778600 instance=ExtResource("10_testunit")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 18.825964, 0, 4)
 team_id = 2
+xp_value = 100
 
 [node name="Player_Interface" type="Node2D" parent="." unique_id=1031169347]
 script = ExtResource("1_emkrx")
@@ -117,6 +124,13 @@ offset_right = 26.0
 offset_bottom = 22.0
 text = "A+"
 
+[node name="ability_target_cursor" type="Label" parent="Player_Interface/UI" unique_id=2000000002]
+visible = false
+modulate = Color(0.45, 0.88, 1, 0.95)
+offset_right = 220.0
+offset_bottom = 22.0
+text = "ABILITY (RMB)"
+
 [node name="CameraBase" type="Node3D" parent="Player_Interface" unique_id=254987575]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.047333956, 0.64338374, 0)
 script = ExtResource("4_hcb8y")
@@ -135,6 +149,12 @@ shape = SubResource("BoxShape3D_emkrx")
 [node name="DebugHUD" type="CanvasLayer" parent="." unique_id=194477383]
 layer = 20
 script = ExtResource("5_debug")
+
+[node name="MatchDirector" type="Node" parent="."]
+script = ExtResource("14_match")
+
+[node name="EnemyBrain" type="Node" parent="."]
+script = ExtResource("15_enemy_brain")
 
 [node name="Label" type="Label" parent="DebugHUD" unique_id=1997978019]
 offset_left = 12.0
@@ -185,6 +205,20 @@ text = "Supply"
 layout_mode = 2
 text = "Train"
 
+[node name="MinimapView" type="Control" parent="DebugHUD" unique_id=2000000001]
+custom_minimum_size = Vector2(290, 290)
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -302.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = 308.0
+grow_horizontal = 0
+grow_vertical = 0
+script = ExtResource("13_minimap")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=196586012]
 environment = SubResource("Environment_tlwt5")
 
@@ -198,7 +232,7 @@ material_override = SubResource("StandardMaterial3D_fj7yv")
 mesh = SubResource("PlaneMesh_tlwt5")
 
 [node name="FogOfWarOverlay" type="MeshInstance3D" parent="MeshInstance3D" unique_id=714043749]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.060000002, 0)
 mesh = SubResource("PlaneMesh_fow")
 script = ExtResource("11_fow")
 

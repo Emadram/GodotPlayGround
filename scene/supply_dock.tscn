@@ -1,33 +1,33 @@
 [gd_scene format=3 uid="uid://supplydock1"]
 
-[ext_resource type="Script" path="res://script/SupplyDock.gd" id="1_dock"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_dock"]
-size = Vector3(2, 0.4, 2)
+[ext_resource type="Script" uid="uid://c6o8q0jgmim20" path="res://script/SupplyDock.gd" id="1_dock"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dock"]
 albedo_color = Color(0.2, 0.6, 0.2, 1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_click"]
-size = Vector3(2, 1, 2)
+[sub_resource type="BoxMesh" id="BoxMesh_dock"]
+size = Vector3(2, 0.4, 2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_solid"]
 size = Vector3(2, 0.45, 2)
 
-[node name="SupplyDock" type="Node3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_click"]
+size = Vector3(2, 1, 2)
+
+[node name="SupplyDock" type="Node3D" unique_id=1307712358]
 script = ExtResource("1_dock")
 
-[node name="Mesh" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_dock")
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=130718299]
 material_override = SubResource("StandardMaterial3D_dock")
+mesh = SubResource("BoxMesh_dock")
 
-[node name="SolidBody" type="StaticBody3D" parent="."]
+[node name="SolidBody" type="StaticBody3D" parent="." unique_id=864849034]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolidBody"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolidBody" unique_id=244284748]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, 0)
 shape = SubResource("BoxShape3D_solid")
 
-[node name="ClickArea" type="Area3D" parent="."]
+[node name="ClickArea" type="Area3D" parent="." unique_id=2047386600]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ClickArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ClickArea" unique_id=1912377196]
 shape = SubResource("BoxShape3D_click")

@@ -7,8 +7,15 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_dozer"]
 size = Vector3(1.8, 1.8, 1)
 
-[node name="Dozer" type="Node3D"]
+[node name="Dozer" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 1
+motion_mode = 1
 script = ExtResource("3_dozer")
+
+[node name="BodyCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("BoxShape3D_dozer")
 
 [node name="NavAgent" type="NavigationAgent3D" parent="."]
 
@@ -19,9 +26,3 @@ axis = 1
 texture = ExtResource("2_select")
 
 [node name="unit_graphics" parent="." instance=ExtResource("1_mesh")]
-
-[node name="CharacterBody3D" type="CharacterBody3D" parent="unit_graphics"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="unit_graphics/CharacterBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0074157715, 0.92425466, 0)
-shape = SubResource("BoxShape3D_dozer")

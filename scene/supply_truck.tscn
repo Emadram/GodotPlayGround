@@ -1,37 +1,44 @@
 [gd_scene format=3 uid="uid://supplytruck1"]
 
 [ext_resource type="ArrayMesh" uid="uid://c5q61q0ty3wgn" path="res://gltf/NormalCar2.obj" id="1_car"]
-[ext_resource type="Texture2D" path="res://images/ui_select_dragbox01.png" id="2_select"]
-[ext_resource type="Script" path="res://script/SupplyTruck.gd" id="3_truck"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_car"]
-metallic = 0.35
-roughness = 0.55
-albedo_color = Color(0.42, 0.44, 0.48, 1)
+[ext_resource type="Texture2D" uid="uid://bu5hp0flcxxgh" path="res://images/ui_select_dragbox01.png" id="2_select"]
+[ext_resource type="Script" uid="uid://mjdsjiqq7yl2" path="res://script/SupplyTruck.gd" id="3_truck"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_truck"]
-size = Vector3(1.6, 1.0, 2.8)
+size = Vector3(1.6, 0.72265625, 2.8)
 
-[node name="SupplyTruck" type="CharacterBody3D"]
-collision_layer = 1
-collision_mask = 1
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_car"]
+albedo_color = Color(0.42, 0.44, 0.48, 1)
+metallic = 0.35
+roughness = 0.55
+
+[node name="SupplyTruck" type="CharacterBody3D" unique_id=1419172102]
+motion_mode = 1
 script = ExtResource("3_truck")
 
-[node name="BodyCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+[node name="BodyCollision" type="CollisionShape3D" parent="." unique_id=1821704692]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36132813, 0)
 shape = SubResource("BoxShape3D_truck")
 
-[node name="NavAgent" type="NavigationAgent3D" parent="."]
+[node name="NavAgent" type="NavigationAgent3D" parent="." unique_id=801256914]
 
-[node name="selected" type="Sprite3D" parent="."]
+[node name="selected" type="Sprite3D" parent="." unique_id=668013089]
 modulate = Color(0, 0.7, 0.7, 0.4)
 pixel_size = 0.1
 axis = 1
 texture = ExtResource("2_select")
 
-[node name="unit_graphics" type="Node3D" parent="."]
+[node name="SupplyCounter" type="Label3D" parent="." unique_id=387041523]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
+billboard = 1
+modulate = Color(0.95, 0.92, 0.75, 1)
+outline_modulate = Color(0, 0, 0, 0.85)
+font_size = 22
+outline_size = 10
 
-[node name="CarMesh" type="MeshInstance3D" parent="unit_graphics"]
+[node name="unit_graphics" type="Node3D" parent="." unique_id=552747166]
+
+[node name="CarMesh" type="MeshInstance3D" parent="unit_graphics" unique_id=606472020]
 transform = Transform3D(-0.48, 0, -4.196167e-08, 0, 0.48, 0, 4.196167e-08, 0, -0.48, 0, 0, 0)
-mesh = ExtResource("1_car")
 material_override = SubResource("StandardMaterial3D_car")
+mesh = ExtResource("1_car")
