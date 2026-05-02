@@ -2,7 +2,8 @@
 Date: 2026-05-01
 
 **Player / tester entry:** [`docs/player-guide.md`](player-guide.md) — controls, economy, power, build/train, abilities, match flow, HUD.  
-**Multi-map workflow:** [`docs/world-scene-workflow.md`](world-scene-workflow.md) — cloning scenes, main scene swap, regression checklist.
+**Multi-map workflow:** [`docs/world-scene-workflow.md`](world-scene-workflow.md) — cloning scenes, main scene swap, regression checklist.  
+**What shipped recently (one page):** [`docs/implementation-summary.md`](implementation-summary.md).
 
 ## Current State (High Level)
 - Core RTS loop is prototyped: unit selection, move/attack orders, and basic combat are working.
@@ -58,6 +59,7 @@ Date: 2026-05-01
 - `docs/sprint-11-match-outcomes-notes.md`
 - `docs/world-scene-workflow.md` (multi-map / main scene checklist)
 - `docs/player-guide.md` (controls and systems for playtesters)
+- `docs/implementation-summary.md` (consolidated delivery snapshot)
 
 ## Sprint Cadence Guardrails (Applies to Every Sprint)
 - One primary feature theme per sprint; avoid mixing unrelated system rewrites.
