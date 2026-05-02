@@ -26,9 +26,20 @@ var secondary_income_accum: float = 0.0
 var visibility_state: Dictionary = {}
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_process_unhandled_input(true)
 	if DataRegistry:
 		DataRegistry.load_all()
 	start_match(current_faction_id)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("game_pause"):
+		return
+	if state == GameState.BOOT or state == GameState.VICTORY or state == GameState.DEFEAT:
+		return
+	toggle_pause()
+	get_viewport().set_input_as_handled()
 
 func start_match(faction_id: String) -> void:
 	current_faction_id = faction_id
@@ -44,7 +55,11 @@ func start_match(faction_id: String) -> void:
 	promotion_level = 0
 	secondary_income_per_second = 1.0
 	secondary_income_accum = 0.0
+	if AbilityProgression:
+		AbilityProgression.reset_for_match()
+		AbilityProgression.add_command_points(2)
 	_set_state(GameState.RUNNING)
+	get_tree().paused = false
 	resources_changed.emit(resources)
 	power_changed.emit(power_available, power_used)
 	promotions_changed.emit(promotion_points, promotion_level)
@@ -85,6 +100,11 @@ func set_power_available(value: int) -> void:
 	power_available = max(value, 0)
 	power_changed.emit(power_available, power_used)
 
+
+func is_power_low() -> bool:
+	return power_used > power_available
+
+
 func add_promotion_points(points: int) -> void:
 	if points <= 0:
 		return
@@ -101,6 +121,10 @@ func add_promotion_points(points: int) -> void:
 func request_airstrike(position: Vector3, team_id: int = 1, radius: float = 2.5, damage: int = 80) -> void:
 	if promotion_level < 1:
 		return
+	apply_airstrike_damage(position, team_id, radius, damage)
+
+
+func apply_airstrike_damage(position: Vector3, team_id: int = 1, radius: float = 2.5, damage: int = 80) -> void:
 	var units := get_tree().get_nodes_in_group("units")
 	for unit in units:
 		if not is_instance_valid(unit):
@@ -115,30 +139,45 @@ func request_airstrike(position: Vector3, team_id: int = 1, radius: float = 2.5,
 				unit.apply_damage(damage, null)
 
 
+## Vision sources for `team_id` (units + non-ghost completed buildings on that team). Used by FoW and minimap.
+func get_fog_sources_for_team(team_id: int) -> Array[Node3D]:
+	var sources: Array[Node3D] = []
+	var units := get_tree().get_nodes_in_group("units")
+	for unit in units:
+		if not is_instance_valid(unit) or not unit is Node3D:
+			continue
+		var other_team = unit.get("team_id")
+		if typeof(other_team) != TYPE_INT or int(other_team) != team_id:
+			continue
+		sources.append(unit as Node3D)
+	for node in get_tree().get_nodes_in_group("buildings"):
+		if not is_instance_valid(node) or not node is Node3D:
+			continue
+		var bteam: Variant = node.get("team_id")
+		if typeof(bteam) != TYPE_INT or int(bteam) != team_id:
+			continue
+		if typeof(node.get("is_ghost")) == TYPE_BOOL and bool(node.get("is_ghost")):
+			continue
+		sources.append(node as Node3D)
+	return sources
+
+
+func is_position_revealed_to_team(world_position: Vector3, viewing_team_id: int) -> bool:
+	return _is_position_visible(world_position, get_fog_sources_for_team(viewing_team_id))
+
+
 # Gameplay FoW: hide enemies unless any friendly unit or completed building (team 1) can see the position.
 func _update_fog_of_war() -> void:
-	var units := get_tree().get_nodes_in_group("units")
-	var friendly_sources: Array[Node3D] = []
+	var friendly_sources := get_fog_sources_for_team(1)
 	var enemy_units: Array[Node3D] = []
-	for unit in units:
+	for unit in get_tree().get_nodes_in_group("units"):
 		if not is_instance_valid(unit) or not unit is Node3D:
 			continue
 		var other_team = unit.get("team_id")
 		if typeof(other_team) != TYPE_INT:
 			continue
-		if other_team == 1:
-			friendly_sources.append(unit as Node3D)
-		else:
+		if int(other_team) != 1:
 			enemy_units.append(unit as Node3D)
-	for node in get_tree().get_nodes_in_group("buildings"):
-		if not is_instance_valid(node) or not node is Node3D:
-			continue
-		var bteam: Variant = node.get("team_id")
-		if typeof(bteam) != TYPE_INT or int(bteam) != 1:
-			continue
-		if typeof(node.get("is_ghost")) == TYPE_BOOL and bool(node.get("is_ghost")):
-			continue
-		friendly_sources.append(node as Node3D)
 	for enemy in enemy_units:
 		var revealed := _is_position_visible(enemy.global_position, friendly_sources)
 		enemy.visible = revealed
@@ -161,7 +200,10 @@ func _is_position_visible(position: Vector3, sources: Array[Node3D]) -> bool:
 	return false
 
 func end_match(victory: bool) -> void:
+	if state == GameState.VICTORY or state == GameState.DEFEAT:
+		return
 	_set_state(GameState.VICTORY if victory else GameState.DEFEAT)
+	get_tree().paused = true
 
 func toggle_pause() -> void:
 	if state == GameState.PAUSED:

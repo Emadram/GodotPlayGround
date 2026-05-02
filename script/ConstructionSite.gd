@@ -106,6 +106,8 @@ func advance_construction(amount: float) -> bool:
 	if get_build_progress_ratio() >= 1.0:
 		is_completed = true
 		_apply_complete_power_impact()
+		if AbilityProgression != null and building_id != "":
+			AbilityProgression.notify_structure_completed(building_id)
 	_update_visual()
 	return is_completed
 
@@ -144,9 +146,22 @@ func queue_unit(unit_id: String) -> bool:
 	if unit_data == null:
 		print("[Production] queue failed: missing UnitData for %s" % unit_id)
 		return false
+	if GameManager != null and GameManager.is_power_low():
+		print("[Production] queue failed: low power (need more power plants)")
+		return false
+	var cp_need: int = maxi(0, unit_data.command_point_cost)
+	if AbilityProgression != null and cp_need > 0 and AbilityProgression.command_points < cp_need:
+		print("[Production] queue failed: need %d CP for %s" % [cp_need, _get_unit_label(unit_id)])
+		return false
 	if GameManager != null and not GameManager.spend_resources(unit_data.cost):
 		print("[Production] queue failed: not enough resources for %s" % _get_unit_label(unit_id))
 		return false
+	if AbilityProgression != null and cp_need > 0:
+		if not AbilityProgression.try_spend_command_points(cp_need):
+			if GameManager != null:
+				GameManager.add_resources(unit_data.cost)
+			print("[Production] queue failed: CP spend for %s" % _get_unit_label(unit_id))
+			return false
 	production_queue.append(unit_id)
 	if active_unit_id == "":
 		_start_next_production()
@@ -205,28 +220,38 @@ func get_production_options() -> Array[Dictionary]:
 	if building_data == null:
 		return options
 	for unit_id in building_data.produces_units:
+		var udata: UnitData = DataRegistry.get_unit(unit_id) if DataRegistry else null
+		var cp: int = udata.command_point_cost if udata != null else 0
 		options.append({
 			"unit_id": unit_id,
-			"label": _get_unit_label(unit_id)
+			"label": _get_unit_label(unit_id),
+			"cp_cost": cp,
 		})
 	return options
 
 
 func get_production_queue_items() -> Array[Dictionary]:
 	var items: Array[Dictionary] = []
+	var power_low := GameManager != null and GameManager.is_power_low()
 	if active_unit_id != "":
+		var ucp := _unit_command_point_cost(active_unit_id)
 		items.append({
 			"unit_id": active_unit_id,
 			"label": _get_unit_label(active_unit_id),
 			"active": true,
-			"timer": production_timer
+			"timer": production_timer,
+			"cp_cost": ucp,
+			"paused_by_power": power_low,
 		})
 	for unit_id in production_queue:
+		var qcp := _unit_command_point_cost(unit_id)
 		items.append({
 			"unit_id": unit_id,
 			"label": _get_unit_label(unit_id),
 			"active": false,
-			"timer": 0.0
+			"timer": 0.0,
+			"cp_cost": qcp,
+			"paused_by_power": false,
 		})
 	return items
 
@@ -256,6 +281,11 @@ func cancel_production_at(index: int) -> bool:
 		production_queue.remove_at(queue_index)
 	if GameManager != null and unit_data != null:
 		GameManager.add_resources(unit_data.cost)
+	var cp_refund: int = 0
+	if unit_data != null:
+		cp_refund = maxi(0, unit_data.command_point_cost)
+	if AbilityProgression != null and cp_refund > 0:
+		AbilityProgression.add_command_points(cp_refund)
 	print("[Production] cancelled %s" % _get_unit_label(unit_id))
 	return true
 
@@ -265,7 +295,22 @@ func get_production_debug_state() -> Dictionary:
 		"active": active_unit_id,
 		"queue_size": production_queue.size(),
 		"timer": production_timer,
-		"completed": is_completed
+		"completed": is_completed,
+		"paused_by_power": GameManager != null and GameManager.is_power_low() and active_unit_id != ""
+	}
+
+
+func get_inspect_summary() -> Dictionary:
+	var hp_max := building_data.max_health if building_data != null else 0
+	return {
+		"building_id": building_id,
+		"display_name": get_building_display_label(),
+		"max_integrity": hp_max,
+		"power_consumed": building_data.power_consumed if building_data != null else 0,
+		"power_provided": building_data.power_provided if building_data != null else 0,
+		"completed": is_completed,
+		"ghost": is_ghost,
+		"build_progress": get_build_progress_ratio(),
 	}
 
 
@@ -464,6 +509,8 @@ func _process_production(delta: float) -> void:
 	if active_unit_id == "":
 		_start_next_production()
 		return
+	if GameManager != null and GameManager.is_power_low():
+		return
 	production_timer = max(production_timer - delta, 0.0)
 	if production_timer > 0.0:
 		return
@@ -496,6 +543,13 @@ func _spawn_unit(unit_id: String) -> void:
 	root.add_child(unit)
 	unit.global_position = global_position + rally_offset
 	print("[Production] spawned %s" % _get_unit_label(unit_id))
+
+
+func _unit_command_point_cost(unit_id: String) -> int:
+	var unit_data: UnitData = DataRegistry.get_unit(unit_id) if DataRegistry else null
+	if unit_data == null:
+		return 0
+	return maxi(0, unit_data.command_point_cost)
 
 
 func _get_unit_label(unit_id: String) -> String:

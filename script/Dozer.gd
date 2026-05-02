@@ -1,4 +1,4 @@
-extends Node3D
+extends CharacterBody3D
 
 @export var team_id: int = 1
 @export var move_speed: float = 4.5
@@ -30,6 +30,8 @@ var use_nav_agent: bool = false
 var last_build_state: String = "idle"
 
 func _ready() -> void:
+	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
+	up_direction = Vector3.UP
 	add_to_group("units")
 	add_to_group("builders")
 	setup_selection_visual()
@@ -171,13 +173,36 @@ func _move_towards(target: Vector3, delta: float) -> bool:
 		direction.y = 0.0
 	if direction.length_squared() <= 0.001:
 		return distance_to_target <= arrive_distance
-	var step: float = min(move_speed * delta, distance_to_target)
+	var step: float = minf(move_speed * delta, distance_to_target)
+	var motion_vec: Vector3
 	if step >= direction.length() and next_position.distance_to(target_pos) <= arrive_distance:
-		global_position = next_position
+		motion_vec = next_position - current_position
 	else:
-		global_position = current_position + direction.normalized() * step
-	look_at(current_position + Vector3(direction.x, 0.0, direction.z), Vector3.UP)
+		motion_vec = direction.normalized() * minf(step, direction.length())
+	motion_vec.y = 0.0
+	_push_kinematic_translation(motion_vec)
+	var look_basis: Vector3 = Vector3(direction.x, 0.0, direction.z)
+	if look_basis.length_squared() > 1e-6:
+		look_at(global_position + look_basis, Vector3.UP)
 	return global_position.distance_to(target_pos) <= arrive_distance
+
+
+func _push_kinematic_translation(offset: Vector3) -> void:
+	offset.y = 0.0
+	if offset.length_squared() < 1e-10:
+		return
+	var hit: KinematicCollision3D = move_and_collide(offset, false, 0.08, true, 4)
+	if hit != null:
+		var rem: Vector3 = hit.get_remainder()
+		rem.y = 0.0
+		var n: Vector3 = hit.get_normal()
+		n.y = 0.0
+		if rem.length_squared() > 1e-8 and n.length_squared() > 1e-8:
+			n = n.normalized()
+			var slide_try: Vector3 = rem.slide(n)
+			slide_try.y = 0.0
+			if slide_try.length_squared() > 1e-10:
+				move_and_collide(slide_try, false, 0.08, true, 4)
 
 
 func _begin_construction(command: Dictionary) -> void:

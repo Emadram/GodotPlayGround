@@ -6,6 +6,8 @@ class_name UnitData
 @export var description: String = ""
 @export var visual_tint: Color = Color(1, 1, 1, 1)
 @export var cost: int = 0
+## CP spent when queuing training (0 = no CP cost).
+@export var command_point_cost: int = 0
 @export var build_time: float = 0.0
 @export var max_health: int = 100
 @export var move_speed: float = 5.0

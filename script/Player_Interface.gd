@@ -6,6 +6,7 @@ extends Node2D
 @onready var camera_3d:Camera3D = $CameraBase/CameraSocket/Camera3D
 @onready var ui_dragbox:NinePatchRect = $UI/ui_dragbox
 @onready var attack_move_cursor: Label = $UI/attack_move_cursor
+@onready var ability_target_cursor: Label = $UI/ability_target_cursor
 
 @export var airstrike_marker_scene: PackedScene
 @export var order_marker_scene: PackedScene
@@ -36,10 +37,12 @@ enum CommandMode {
 	NORMAL,
 	ATTACK_MOVE,
 	GUARD,
-	BUILD
+	BUILD,
+	ABILITY
 }
 
 var pending_command_mode: CommandMode = CommandMode.NORMAL
+var pending_ability_id: StringName = &""
 var pending_building_id: String = "usa_command_center"
 var build_preview: Node3D
 var build_preview_valid: bool = false
@@ -116,6 +119,8 @@ func initialize_interface() -> void:
 	ui_dragbox.visible = false
 	if attack_move_cursor != null:
 		attack_move_cursor.visible = false
+	if ability_target_cursor != null:
+		ability_target_cursor.visible = false
 	player_camera_visibleunits_Area3D.body_entered.connect(unit_entered)
 	player_camera_visibleunits_Area3D.body_exited.connect(unit_exited)
 	
@@ -128,6 +133,9 @@ func _input(event:InputEvent) -> void:
 				pending_command_mode = CommandMode.NORMAL
 				_set_build_debug("build cancelled (right click)")
 				_clear_build_preview()
+				return
+			if pending_command_mode == CommandMode.ABILITY:
+				_try_issue_pending_commander_ability()
 				return
 			issue_context_command(event.shift_pressed)
 		elif event.button_index == MOUSE_BUTTON_LEFT:
@@ -155,6 +163,18 @@ func _input(event:InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE and pending_command_mode == CommandMode.ABILITY:
+			_clear_pending_commander_ability()
+			return
+		if event.is_action_pressed("commander_ability_1"):
+			_begin_commander_ability_hotbar(0)
+			return
+		if event.is_action_pressed("commander_ability_2"):
+			_begin_commander_ability_hotbar(1)
+			return
+		if event.is_action_pressed("commander_ability_3"):
+			_begin_commander_ability_hotbar(2)
+			return
 		if event.is_action_pressed("command_stop"):
 			issue_stop_command()
 			return
@@ -186,6 +206,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # Unit selector
 func finalize_selection(event: InputEventMouseButton) -> void:
 	var append := event.shift_pressed
+	if pending_command_mode == CommandMode.ABILITY:
+		_clear_pending_commander_ability()
 	if pending_command_mode == CommandMode.BUILD:
 		_issue_build_from_preview(append)
 		return
@@ -332,26 +354,81 @@ func issue_context_command(queued: bool) -> void:
 
 func issue_stop_command() -> void:
 	pending_command_mode = CommandMode.NORMAL
+	pending_ability_id = &""
 	issue_simple_command(CommandType.STOP)
 
 func issue_hold_command() -> void:
 	pending_command_mode = CommandMode.NORMAL
+	pending_ability_id = &""
 	issue_simple_command(CommandType.HOLD)
 
 func set_guard_mode() -> void:
 	if not _has_selected_combat_unit():
 		return
+	_clear_pending_commander_ability()
 	pending_command_mode = CommandMode.GUARD
 
 func set_attack_move_mode() -> void:
 	if not _has_selected_combat_unit():
 		return
+	_clear_pending_commander_ability()
 	pending_command_mode = CommandMode.ATTACK_MOVE
+
+
+func begin_commander_ability(ability_id: StringName) -> void:
+	if AbilityProgression == null:
+		return
+	var def: Dictionary = AbilityProgression.get_ability_def(ability_id)
+	if def.is_empty():
+		return
+	if pending_command_mode == CommandMode.BUILD:
+		pending_command_mode = CommandMode.NORMAL
+		_clear_build_preview()
+	if pending_command_mode == CommandMode.ATTACK_MOVE or pending_command_mode == CommandMode.GUARD:
+		pending_command_mode = CommandMode.NORMAL
+	if int(def.get("targeting", AbilityProgression.TARGET_NONE)) == AbilityProgression.TARGET_GROUND:
+		if not AbilityProgression.can_prepare_cast(ability_id):
+			return
+		pending_command_mode = CommandMode.ABILITY
+		pending_ability_id = ability_id
+		return
+	AbilityProgression.try_cast_instant(ability_id, player_team_id)
+
+
+func _begin_commander_ability_hotbar(slot_index: int) -> void:
+	if AbilityProgression == null:
+		return
+	var aid: StringName = AbilityProgression.get_ability_id_at_hud_index(slot_index)
+	if aid == &"":
+		return
+	begin_commander_ability(aid)
+
+
+func _try_issue_pending_commander_ability() -> void:
+	var id: StringName = pending_ability_id
+	var target_position := Vector3.ZERO
+	var hit := get_mouse_hit()
+	if hit.has("position"):
+		target_position = hit["position"]
+	else:
+		target_position = get_mouse_world_position()
+	var ok := false
+	if AbilityProgression:
+		ok = AbilityProgression.try_cast_ground(id, target_position, player_team_id)
+	if ok and id == AbilityProgression.ABILITY_AIRSTRIKE:
+		spawn_airstrike_marker(target_position)
+	_clear_pending_commander_ability()
+
+
+func _clear_pending_commander_ability() -> void:
+	pending_command_mode = CommandMode.NORMAL
+	pending_ability_id = &""
 
 func set_build_mode(building_id: String = "usa_command_center") -> void:
 	if not _has_any_builder_available():
 		_set_build_debug("build mode failed: no dozer available")
 		return
+	_clear_pending_commander_ability()
 	pending_building_id = building_id
 	pending_command_mode = CommandMode.BUILD
 	_set_build_debug("build mode active: %s" % building_id)
@@ -532,13 +609,9 @@ func _filter_valid_units(units: Array) -> Array:
 	return filtered
 
 func request_airstrike_at_cursor() -> void:
-	if GameManager == null:
-		return
-	if GameManager.promotion_level < 1:
-		return
 	var target := get_mouse_world_position()
-	spawn_airstrike_marker(target)
-	GameManager.request_airstrike(target, player_team_id)
+	if AbilityProgression and AbilityProgression.try_cast_ground(AbilityProgression.ABILITY_AIRSTRIKE, target, player_team_id):
+		spawn_airstrike_marker(target)
 
 func spawn_airstrike_marker(target_position: Vector3) -> void:
 	if airstrike_marker_scene == null:
@@ -559,6 +632,7 @@ func _process(_delta: float) -> void:
 				ui_dragbox.visible = true
 	_update_build_preview()
 	update_attack_move_cursor()
+	update_ability_target_cursor()
 			
 
 func update_ui_dragbox() -> void:
@@ -584,6 +658,21 @@ func update_attack_move_cursor() -> void:
 		attack_move_cursor.position = get_viewport().get_mouse_position() + Vector2(14, 18)
 	else:
 		attack_move_cursor.visible = false
+
+
+func update_ability_target_cursor() -> void:
+	if ability_target_cursor == null:
+		return
+	if pending_command_mode == CommandMode.ABILITY:
+		if AbilityProgression:
+			var def: Dictionary = AbilityProgression.get_ability_def(pending_ability_id)
+			ability_target_cursor.text = "ABILITY: %s (RMB)" % str(def.get("label", "?"))
+		else:
+			ability_target_cursor.text = "ABILITY (RMB)"
+		ability_target_cursor.visible = true
+		ability_target_cursor.position = get_viewport().get_mouse_position() + Vector2(14, 36)
+	else:
+		ability_target_cursor.visible = false
 
 
 func _issue_build_from_preview(queued: bool) -> void:
@@ -826,6 +915,8 @@ func get_build_debug_state() -> Dictionary:
 			mode_name = "GUARD"
 		CommandMode.BUILD:
 			mode_name = "BUILD"
+		CommandMode.ABILITY:
+			mode_name = "ABILITY"
 	return {
 		"mode": mode_name,
 		"preview_valid": build_preview_valid,
@@ -916,7 +1007,98 @@ func get_selected_building_bar_state() -> Dictionary:
 		"train_label": _get_building_production_label(building),
 		"train_options": _get_building_production_options(building),
 		"queue_items": get_selected_production_queue_items(),
-		"max_queue": _get_building_max_queue(building)
+		"max_queue": _get_building_max_queue(building),
+		"power_low": GameManager.is_power_low() if GameManager != null else false
+	}
+
+
+func get_inspect_panel_state() -> Dictionary:
+	selected_units = _filter_valid_units(selected_units)
+	selected_buildings = _filter_valid_units(selected_buildings)
+	if selected_units.size() == 1 and selected_buildings.is_empty():
+		return _inspect_single_unit(selected_units[0])
+	if selected_buildings.size() == 1 and selected_units.is_empty():
+		return _inspect_single_building(selected_buildings[0])
+	return {"visible": false, "text": "", "signature": "off", "title": ""}
+
+
+func _inspect_single_unit(u: Node) -> Dictionary:
+	var key := get_selection_key(u)
+	var ud: UnitData = u.get("unit_data") as UnitData if "unit_data" in u else null
+	var title := key
+	if ud != null and ud.display_name != "":
+		title = ud.display_name
+	var lines: PackedStringArray = PackedStringArray()
+	lines.append("Selection: unit")
+	if ud != null:
+		lines.append("Type: %s" % ud.id)
+		if DataRegistry != null:
+			if ud.weapon_id != "":
+				var wdata = DataRegistry.get_weapon(ud.weapon_id)
+				if wdata != null:
+					lines.append("Weapon: %s" % wdata.id)
+			if ud.armor_id != "":
+				var adata = DataRegistry.get_armor(ud.armor_id)
+				if adata != null:
+					lines.append("Armor: %s" % adata.id)
+	var cur := int(u.get("current_health")) if "current_health" in u else 0
+	var mx := int(u.get("max_health")) if "max_health" in u else 0
+	lines.append("HP: %d / %d" % [cur, mx])
+	var sig := "%s|%d|%d" % [key, cur, mx]
+	return {
+		"visible": true,
+		"title": title,
+		"text": "\n".join(lines),
+		"signature": sig
+	}
+
+
+func _inspect_single_building(b: Node) -> Dictionary:
+	var title := get_selection_key(b)
+	if b.has_method("get_building_display_label"):
+		title = str(b.get_building_display_label())
+	var bid := get_selection_key(b)
+	var lines: PackedStringArray = PackedStringArray()
+	lines.append("Selection: structure")
+	var summ: Dictionary = {}
+	if b.has_method("get_inspect_summary"):
+		summ = b.get_inspect_summary()
+	if not summ.is_empty():
+		lines.append("Id: %s" % str(summ.get("building_id", bid)))
+		lines.append("Design HP: %d" % int(summ.get("max_integrity", 0)))
+		lines.append("Grid power: +%d / -%d" % [int(summ.get("power_provided", 0)), int(summ.get("power_consumed", 0))])
+		if not bool(summ.get("completed", false)):
+			lines.append("Construction: %d%%" % int(round(float(summ.get("build_progress", 0.0)) * 100.0)))
+	else:
+		lines.append("Id: %s" % bid)
+	var q_size := 0
+	if bool(summ.get("completed", false)) and b.has_method("get_production_queue_items"):
+		var q: Array = b.get_production_queue_items()
+		q_size = q.size()
+		if not q.is_empty():
+			lines.append("Training (%d):" % q_size)
+			for item in q:
+				var row := str(item.get("label", ""))
+				if bool(item.get("active", false)):
+					row += "  %.0fs" % float(item.get("timer", 0.0))
+					if bool(item.get("paused_by_power", false)):
+						row += " (power hold)"
+				lines.append(" • %s" % row)
+	var low := GameManager.is_power_low() if GameManager != null else false
+	if low and bool(summ.get("completed", false)):
+		lines.append("Base power is in deficit — new training blocked.")
+	var active_timer := 0.0
+	if b.has_method("get_production_queue_items"):
+		for item in b.get_production_queue_items():
+			if bool(item.get("active", false)):
+				active_timer = float(item.get("timer", 0.0))
+				break
+	var sig := "%s|c%s|q%d|pl%s|%.2f" % [bid, str(summ.get("completed", false)), q_size, str(low), active_timer]
+	return {
+		"visible": true,
+		"title": title,
+		"text": "\n".join(lines),
+		"signature": sig
 	}
 
 
@@ -959,3 +1141,16 @@ func _get_building_max_queue(building: Node) -> int:
 	if building.has_method("get_max_production_queue"):
 		return int(building.get_max_production_queue())
 	return 0
+
+
+func is_node_in_selection(node: Node) -> bool:
+	return selected_units.has(node) or selected_buildings.has(node)
+
+
+func pan_camera_to_world_xz(world_x: float, world_z: float) -> void:
+	if player_camera == null:
+		return
+	var p := player_camera.position
+	p.x = world_x
+	p.z = world_z
+	player_camera.position = p

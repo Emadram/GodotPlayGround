@@ -1,4 +1,4 @@
-extends Node3D
+extends CharacterBody3D
 # Base infantry (Ranger / Rocket Soldier): command queue, combat, veterancy, FoW vision, Soldier_02 animation, weapon mesh, health bar.
 
 @export var unit_data: UnitData
@@ -118,6 +118,8 @@ var is_dead: bool = false
 var weapon_prop: Node3D
 
 func _ready() -> void:
+	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
+	up_direction = Vector3.UP
 	add_to_group("units")
 	setup_selection_visual()
 	apply_unit_data()
@@ -430,7 +432,9 @@ func _move_towards_position(target: Vector3, delta: float) -> bool:
 	var travel_vector := next_position - current_position
 	var distance := travel_vector.length()
 	if distance <= arrive_distance:
-		global_position = next_position
+		var motion_snap1: Vector3 = next_position - current_position
+		motion_snap1.y = 0.0
+		_push_kinematic_translation(motion_snap1)
 		var final_distance: float = global_position.distance_to(target_pos)
 		if final_distance <= arrive_distance:
 			_reset_movement_progress()
@@ -450,9 +454,11 @@ func _move_towards_position(target: Vector3, delta: float) -> bool:
 		speed_scale = clamp(target_distance / max(destination_slowdown_distance, 0.01), 0.35, 1.0)
 	var step := move_speed * speed_scale * delta
 	if step >= distance:
-		global_position = next_position
-		var final_distance: float = global_position.distance_to(target_pos)
-		if final_distance <= arrive_distance:
+		var motion_snap2: Vector3 = next_position - current_position
+		motion_snap2.y = 0.0
+		_push_kinematic_translation(motion_snap2)
+		var final_distance2: float = global_position.distance_to(target_pos)
+		if final_distance2 <= arrive_distance:
 			_update_stuck_recovery(target_pos, delta)
 			return true
 		if use_nav_agent and not nav_agent.is_navigation_finished():
@@ -460,11 +466,33 @@ func _move_towards_position(target: Vector3, delta: float) -> bool:
 			return false
 		_update_stuck_recovery(target_pos, delta)
 		return false
-	global_position = current_position + movement_dir * step
+	var motion_step: Vector3 = movement_dir * step
+	motion_step.y = 0.0
+	_push_kinematic_translation(motion_step)
 	if movement_dir.length_squared() > 0.001:
-		look_at(current_position + Vector3(movement_dir.x, 0, movement_dir.z), Vector3.UP)
+		var lb: Vector3 = Vector3(movement_dir.x, 0.0, movement_dir.z)
+		if lb.length_squared() > 1e-6:
+			look_at(global_position + lb, Vector3.UP)
 	_update_stuck_recovery(target_pos, delta)
 	return false
+
+
+func _push_kinematic_translation(offset: Vector3) -> void:
+	offset.y = 0.0
+	if offset.length_squared() < 1e-10:
+		return
+	var hit: KinematicCollision3D = move_and_collide(offset, false, 0.08, true, 4)
+	if hit != null:
+		var rem: Vector3 = hit.get_remainder()
+		rem.y = 0.0
+		var n: Vector3 = hit.get_normal()
+		n.y = 0.0
+		if rem.length_squared() > 1e-8 and n.length_squared() > 1e-8:
+			n = n.normalized()
+			var slide_try: Vector3 = rem.slide(n)
+			slide_try.y = 0.0
+			if slide_try.length_squared() > 1e-10:
+				move_and_collide(slide_try, false, 0.08, true, 4)
 
 
 func _process_attack(delta: float) -> void:
