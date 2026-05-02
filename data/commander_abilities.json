@@ -1,0 +1,33 @@
+[
+	{
+		"id": "cmd_airstrike",
+		"label": "Airstrike",
+		"effect": "airstrike",
+		"params": { "radius": 2.5, "damage": 80 },
+		"cp_cost": 1,
+		"cooldown": 20,
+		"targeting": "ground",
+		"min_promotion_level": 1
+	},
+	{
+		"id": "cmd_supply_drop",
+		"label": "Supply Drop",
+		"effect": "supply_drop",
+		"params": { "amount": 180 },
+		"cp_cost": 2,
+		"cooldown": 35,
+		"targeting": "none",
+		"min_promotion_level": 0
+	},
+	{
+		"id": "cmd_war_bonds",
+		"label": "War Bonds",
+		"effect": "grant_resources",
+		"params": { "amount": 140 },
+		"cp_cost": 1,
+		"cooldown": 50,
+		"targeting": "none",
+		"min_promotion_level": 0,
+		"unlock_id": "usa_hq_complete"
+	}
+]

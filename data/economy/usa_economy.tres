@@ -6,6 +6,6 @@
 script = ExtResource("1")
 id = "usa_economy"
 display_name = "USA Economy"
-supply_gather_rate = 10.0
-drop_off_time = 1.5
+supply_gather_rate = 200.0
+drop_off_time = 2.5
 supply_dock_amount = 20000

@@ -9,6 +9,7 @@ display_name = "Rocket Soldier"
 description = "Infantry with explosive anti-armor rockets."
 visual_tint = Color(0.45, 0.45, 0.45, 1)
 cost = 350
+command_point_cost = 2
 build_time = 8.0
 max_health = 100
 move_speed = 4.8
