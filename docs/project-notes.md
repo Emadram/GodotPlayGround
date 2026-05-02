@@ -1,12 +1,16 @@
 # Project Notes (Consolidated)
 Date: 2026-05-01
 
+**Player / tester entry:** [`docs/player-guide.md`](player-guide.md) — controls, economy, power, build/train, abilities, match flow, HUD.  
+**Multi-map workflow:** [`docs/world-scene-workflow.md`](world-scene-workflow.md) — cloning scenes, main scene swap, regression checklist.
+
 ## Current State (High Level)
 - Core RTS loop is prototyped: unit selection, move/attack orders, and basic combat are working.
 - Command queueing exists with context-sensitive orders (move/attack/guard/harvest) and formation spacing.
 - Basic economy is in place: supply dock, supply truck (`gltf/NormalCar2.obj` mesh), and dropoff are functional; dock, dropoff, and truck use **physics collision** (`StaticBody3D` / `CharacterBody3D`) for blocking and queries.
+- Supply truck pathing uses **`NavigationAgent3D`** on a walkable **`NavigationRegion3D`** surface; if the truck stalls near the dock, check **`SupplyDock` transform scale** (oversized dock collision can block the approach segment even when nav paths exist). See [`docs/sprint-02-navigation-avoidance-notes.md`](docs/sprint-02-navigation-avoidance-notes.md).
 - Promotions and global resources/power are tracked at game level; a basic airstrike is available.
-- HUD includes debug stats and contextual command buttons at the bottom-left.
+- HUD includes debug stats and contextual command buttons at the bottom-left; **tactical minimap** (top-right) with unit/building blips and **click-to-pan** camera; **command points (CP)** line tied to [`AbilityProgression`](../script/AbilityProgression.gd) (Sprint 7 scaffold).
 - Attack-move mode has a persistent cursor indicator and HUD activation button.
 - Dedicated dozers handle construction; supply trucks only collect and deliver supplies.
 - Build placement, grid snapping, footprint validation, and construction progress are implemented.
@@ -31,6 +35,7 @@ Date: 2026-05-01
 - **Health bar** stays on the unit root with Y-billboard materials and is always visible; fill shows damage.
 - **Construction** sites use larger **black** progress text (white outline) and slightly larger cancel text for readability.
 - Important FoW / weapon / animation sections in code carry **short comments** at boundaries to ease onboarding as the project grows.
+- **Map scenes:** Gameplay is driven by whichever scene is set as **Run → Main Scene**; duplicate [`scene/world.tscn`](../scene/world.tscn) per new map and follow [`docs/world-scene-workflow.md`](world-scene-workflow.md).
 
 ## Sprint 1 Summary (Command System & Selection UX)
 - Unified command flow for units, including queued orders.
@@ -46,11 +51,19 @@ Date: 2026-05-01
 - `docs/sprint-04-economy-production-notes.md`
 - `docs/sprint-05-combat-depth-notes.md`
 - `docs/sprint-06-fog-of-war-ui-notes.md`
+- `docs/sprint-07-abilities-notes.md`
+- `docs/sprint-08-lockstep-notes.md` (stub; start after Sprint 7)
+- `docs/sprint-09-review-qa-notes.md` (benchmarks & manual QA matrices)
+- `docs/sprint-10-power-production-notes.md`
+- `docs/sprint-11-match-outcomes-notes.md`
+- `docs/world-scene-workflow.md` (multi-map / main scene checklist)
+- `docs/player-guide.md` (controls and systems for playtesters)
 
 ## Sprint Cadence Guardrails (Applies to Every Sprint)
 - One primary feature theme per sprint; avoid mixing unrelated system rewrites.
 - Define one measurable benchmark before implementation starts.
 - Carry forward a short regression checklist from the previous sprint and run it before sign-off.
+- When using a **non-default main scene**, re-run the relevant rows in [`docs/sprint-09-review-qa-notes.md`](sprint-09-review-qa-notes.md) for that map (see [`docs/world-scene-workflow.md`](world-scene-workflow.md)).
 - Reserve end-of-sprint time for stabilization and a focused playtest pass.
 - Ship with explicit handoff notes: what is done, what remains risky, and what unlocks the next sprint.
 
@@ -268,7 +281,7 @@ Date: 2026-05-01
 - Determinism report and replay tooling baseline for production multiplayer planning.
 
 ## Current Implementation Checkup
-- Sprint 2 baseline is implemented: navigation tuning exports, separation steering, anti-stuck recovery, and HUD movement metrics.
+- Sprint 2 baseline is implemented: navigation tuning exports, separation steering, anti-stuck recovery, and HUD movement metrics; supply truck dock approach validated after docking **`SupplyDock`** scale to reasonable collision vs [`SupplyTruck.gd`](../script/SupplyTruck.gd) `resource_approach_standoff`.
 - Sprint 3 baseline is implemented: dozer-only construction, ghost placement, grid snapping, footprint checks, and construction progress.
 - Sprint 4 baseline is implemented: `EconomyData` integration, secondary passive income, completed-building production queues, and added buildable structures.
 - Sprint 5 baseline is implemented: weapon damage types, armor modifiers, target priority scoring, and combat debug prints.
@@ -277,7 +290,12 @@ Date: 2026-05-01
   - `usa_power_plant`
   - `usa_barracks`
   - `usa_supply_depot`
-- **Sprint 6 (FoW + presentation)**: gameplay visibility (units + buildings), terrain darkening overlay, `Pistol_5` rifle mesh + import, health bar behavior, hold/guard vs social idle rules, construction label styling; see `docs/sprint-06-fog-of-war-ui-notes.md` for file map and validation list.
+- **Sprint 6 (FoW + presentation)**: gameplay visibility (units + buildings), terrain darkening overlay, `Pistol_5` rifle mesh + import, health bar behavior, hold/guard vs social idle rules, construction label styling, **HUD minimap** (`MinimapView`) with **wheel zoom**; **inspect readout** (single selection) on [`DebugHUD`](../script/DebugHUD.gd). See `docs/sprint-06-fog-of-war-ui-notes.md`. Further minimap art = optional. Manual validation lists: **`docs/sprint-09-review-qa-notes.md`**.
+- **Sprint 7 (started):** `AbilityProgression` autoload + CP HUD + promotion→CP hook; see `docs/sprint-07-abilities-notes.md`.
+- **Sprint 10:** Power deficit gates training + pauses production timers; see [`docs/sprint-10-power-production-notes.md`](sprint-10-power-production-notes.md).
+- **Sprint 11:** Match victory/defeat + overlay/restart; see [`docs/sprint-11-match-outcomes-notes.md`](sprint-11-match-outcomes-notes.md).
+- **Sprint 12:** Enemy skirmish brain (periodic attack-move): [`script/EnemyBrain.gd`](../script/EnemyBrain.gd) + [`script/MatchDirector.gd`](../script/MatchDirector.gd) in [`scene/world.tscn`](../scene/world.tscn).
+- **Combat infantry (`testunit`)** use **`CharacterBody3D`** root + kinematic `move_and_collide` (same integration idea as dozer/truck); see `docs/sprint-02-navigation-avoidance-notes.md`.
 - Current test roles:
   - `Dozer`: build/move/stop only; no attack, attack-move, or guard.
   - `SupplyTruck`: harvest/dropoff only; no construction.
@@ -291,7 +309,7 @@ Date: 2026-05-01
 4. Confirm completed production buildings can queue and spawn `usa_ranger` with resource cost and build time.
 5. Replace temporary/debug building visuals with distinct meshes or materials per building type.
 6. Polish visible per-building queue UI beyond the current debug-style queue box.
-7. Decide whether power shortages should block production/construction or only display warning state.
+7. ~~Decide whether power shortages should block production/construction or only display warning state.~~ **Resolved (Sprint 10):** low power **blocks new training** and **pauses** active production timers; construction is not blocked. See [`docs/sprint-10-power-production-notes.md`](sprint-10-power-production-notes.md).
 8. Re-run command regression: stop, hold, attack-move, guard, harvest, build, train.
 
 ## TODO Before Moving Past Sprint 5
@@ -304,7 +322,7 @@ Date: 2026-05-01
 1. Playtest vision edges: moving spotters, destroyed buildings, and the 32-source cap on `FogOfWarOverlay`.
 2. Confirm `Pistol_5.obj.import` is committed so clones reimport; tune grip transform if the mesh clips the hand in some clips.
 3. Decide product behavior for **health bar when at full HP** (always-on vs on-damage-only) and document in sprint notes.
-4. Schedule **minimap** + **unit/building inspect panels** (original Sprint 6 scope) or explicitly move to Sprint 6b / Sprint 7 UI milestone.
+4. **Sprint 6b (partial):** Single-selection inspect readout + minimap wheel zoom shipped; optional decorative frame still open. See [`docs/sprint-06-fog-of-war-ui-notes.md`](docs/sprint-06-fog-of-war-ui-notes.md). Regression matrices: [`docs/sprint-09-review-qa-notes.md`](docs/sprint-09-review-qa-notes.md).
 5. Re-run FoW + construction regression: place building, verify %/cancel labels, verify enemy hidden until in combined unit+building vision.
 
 ## Per Sprint Validation Checklist

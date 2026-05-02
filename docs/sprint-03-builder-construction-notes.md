@@ -55,6 +55,10 @@ Implement build placement flow with grid snapping, footprint validation, builder
   - combat command buttons require a combat unit selection,
   - build button requires a selected dozer.
 
+## Build validation matrix (Sprint 3 sign-off)
+
+Matrix and ghost/power checks: **[`docs/sprint-09-review-qa-notes.md`](sprint-09-review-qa-notes.md) §2**.
+
 ## Files Updated
 - `script/ConstructionSite.gd`
 - `script/Dozer.gd`

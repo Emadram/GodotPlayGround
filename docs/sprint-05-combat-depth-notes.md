@@ -61,3 +61,4 @@ Add tactical combat differentiation while keeping commands readable and debuggab
 ## Validation Notes
 - Lint check passed for updated combat scripts.
 - Runtime validation still needed for target priority and matchup feel.
+- Skirmish matrix, armor log, `light_vehicle` deferral: **[`docs/sprint-09-review-qa-notes.md`](sprint-09-review-qa-notes.md) §4**.

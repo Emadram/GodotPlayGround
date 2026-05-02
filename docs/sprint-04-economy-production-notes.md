@@ -59,3 +59,18 @@ Make economy values data-driven and add the first production queue flow.
 ## Validation Notes
 - Lint check passed for updated scripts.
 - Supply truck remains economy-only; dozer remains construction-only.
+
+## Sprint 4 sign-off checklist (from `project-notes.md`)
+
+Checklist table: **[`docs/sprint-09-review-qa-notes.md`](sprint-09-review-qa-notes.md) §3**.
+
+## Product / design decisions (documented)
+
+**Power shortage vs production/construction**
+
+- **Observed (2026-05-01):** `GameManager` tracks `power_used` / `power_available`; HUD shows the pair. `ConstructionSite` applies `power_consumed` on build start and `power_provided` on completion. There is **no** single documented gate yet that blocks all production when `power_used > power_available` — confirm per-system as features grow.
+- **Placeholder:** choose **block**, **warn-only**, or **mixed** policy; record the decision in this section and optionally in `EconomyData` / design doc when locked.
+
+**Queue UI / building visuals**
+
+- Treat polished queue UI and unique building meshes as **tracked art/UI milestones**; debug queue UI is acceptable for internal sign-off until those milestones are scheduled.
