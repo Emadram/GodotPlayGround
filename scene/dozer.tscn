@@ -1,28 +1,29 @@
 [gd_scene format=3 uid="uid://do0er1"]
 
-[ext_resource type="PackedScene" path="res://gltf/Test_Unit_01.fbx" id="1_mesh"]
-[ext_resource type="Texture2D" path="res://images/ui_select_dragbox01.png" id="2_select"]
-[ext_resource type="Script" path="res://script/Dozer.gd" id="3_dozer"]
+[ext_resource type="PackedScene" uid="uid://cugqyadj23bvv" path="res://gltf/Bulldozer.fbx" id="1_mesh"]
+[ext_resource type="Texture2D" uid="uid://bu5hp0flcxxgh" path="res://images/ui_select_dragbox01.png" id="2_select"]
+[ext_resource type="Script" uid="uid://4k6j0w15la15" path="res://script/Dozer.gd" id="3_dozer"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dozer"]
-size = Vector3(1.8, 1.8, 1)
+size = Vector3(2.9605956, 1.0284668, 3.712134)
 
-[node name="Dozer" type="CharacterBody3D"]
-collision_layer = 1
-collision_mask = 1
+[node name="Dozer" type="CharacterBody3D" unique_id=1034155230]
 motion_mode = 1
 script = ExtResource("3_dozer")
 
-[node name="BodyCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+[node name="BodyCollision" type="CollisionShape3D" parent="." unique_id=1401574638]
+transform = Transform3D(0.4992326, 0, 0, 0, 1, 0, 0, 0, 0.49435973, 0.011059582, 0.5142333, -0.3535746)
 shape = SubResource("BoxShape3D_dozer")
 
-[node name="NavAgent" type="NavigationAgent3D" parent="."]
+[node name="NavAgent" type="NavigationAgent3D" parent="." unique_id=970265778]
 
-[node name="selected" type="Sprite3D" parent="."]
+[node name="selected" type="Sprite3D" parent="." unique_id=1084925605]
+transform = Transform3D(1.673355, 0, 0, 0, 1, 0, 0, 0, 2.2037852, 0, 0, -0.45463347)
+visible = false
 modulate = Color(0.9, 0.7, 0.15, 0.45)
 pixel_size = 0.1
 axis = 1
 texture = ExtResource("2_select")
 
-[node name="unit_graphics" parent="." instance=ExtResource("1_mesh")]
+[node name="unit_graphics" parent="." unique_id=1735863178 instance=ExtResource("1_mesh")]
+transform = Transform3D(-0.1, 0, 1.509958e-08, 0, 0.1, 0, -1.509958e-08, 0, -0.1, 0, 0, 0)

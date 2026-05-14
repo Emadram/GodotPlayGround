@@ -51,7 +51,7 @@ func setup_navigation() -> void:
 	nav_agent.avoidance_enabled = true
 	nav_agent.path_desired_distance = arrive_distance
 	nav_agent.target_desired_distance = arrive_distance
-	nav_agent.radius = 0.8
+	nav_agent.radius = 0.18
 	nav_agent.max_speed = move_speed
 
 

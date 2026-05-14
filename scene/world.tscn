@@ -15,8 +15,8 @@
 [ext_resource type="Script" uid="uid://dbw7e30t0n1jh" path="res://script/FogOfWarOverlay.gd" id="11_fow"]
 [ext_resource type="Script" uid="uid://i5hg24cagpy4" path="res://script/WorldNavigationRegion.gd" id="12_nav_region"]
 [ext_resource type="Script" uid="uid://bwxl5puyok46x" path="res://script/MinimapView.gd" id="13_minimap"]
-[ext_resource type="Script" path="res://script/MatchDirector.gd" id="14_match"]
-[ext_resource type="Script" path="res://script/EnemyBrain.gd" id="15_enemy_brain"]
+[ext_resource type="Script" uid="uid://c3gogofm8jxmx" path="res://script/MatchDirector.gd" id="14_match"]
+[ext_resource type="Script" uid="uid://3y63fd65y7h2" path="res://script/EnemyBrain.gd" id="15_enemy_brain"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_nav"]
 
@@ -78,7 +78,7 @@ dropoff_path = NodePath("../DropoffPoint")
 capacity = 200
 
 [node name="Dozer" parent="." unique_id=2039731142 instance=ExtResource("9_dozer")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 6.548751)
 
 [node name="EnemyRanger" parent="." unique_id=1923778600 instance=ExtResource("10_testunit")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 18.825964, 0, 4)
@@ -150,12 +150,6 @@ shape = SubResource("BoxShape3D_emkrx")
 layer = 20
 script = ExtResource("5_debug")
 
-[node name="MatchDirector" type="Node" parent="."]
-script = ExtResource("14_match")
-
-[node name="EnemyBrain" type="Node" parent="."]
-script = ExtResource("15_enemy_brain")
-
 [node name="Label" type="Label" parent="DebugHUD" unique_id=1997978019]
 offset_left = 12.0
 offset_top = 12.0
@@ -218,6 +212,12 @@ offset_bottom = 308.0
 grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("13_minimap")
+
+[node name="MatchDirector" type="Node" parent="." unique_id=2037516236]
+script = ExtResource("14_match")
+
+[node name="EnemyBrain" type="Node" parent="." unique_id=931836865]
+script = ExtResource("15_enemy_brain")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=196586012]
 environment = SubResource("Environment_tlwt5")
